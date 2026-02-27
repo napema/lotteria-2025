@@ -233,6 +233,7 @@
           <div class="section-title">Mappa Numeri</div>
           <div class="section-sub">Verde = libero · Rosso = venduto · Passa il mouse per vedere il numero</div>
         </div>
+        <div id="map-loading" style="font-size:12px;color:var(--muted)">⏳ Caricamento mappa...</div>
       </div>
       <div class="num-map" id="num-map">
         <!-- generato da JS -->
@@ -336,20 +337,32 @@
   }
 
   function startListeners() {
+    let loadingComplete = false;
+
     // Ascolta numeri
     onSnapshot(collection(db, 'numeri'), snap => {
-      snap.forEach(d => {
-        const data = d.data();
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data();
         numeriState[data.numero] = data.disponibile;
         const cell = document.getElementById(`cell-${data.numero}`);
         if (cell) {
           cell.className = 'num-cell ' + (data.disponibile ? 'free' : 'taken');
         }
       });
+
+      // Nascondi indicatore caricamento quando mappa è completa
+      const loaded = Object.keys(numeriState).length;
+      const loadEl = document.getElementById('map-loading');
+      if (loaded >= MAX) {
+        if (loadEl) loadEl.style.display = 'none';
+      } else {
+        if (loadEl) loadEl.textContent = `⏳ ${loaded.toLocaleString('it-IT')} / ${MAX.toLocaleString('it-IT')}`;
+      }
+
       updateKPI();
     });
 
-    // Ascolta iscrizioni — NOTA: richiede regola read=true in Firestore per admin
+    // Ascolta iscrizioni
     onSnapshot(collection(db, 'iscrizioni'), snap => {
       allIscrizioni = [];
       snap.forEach(d => allIscrizioni.push({ id: d.id, ...d.data() }));
@@ -361,12 +374,13 @@
 
   function updateKPI() {
     const venduti = Object.values(numeriState).filter(v => !v).length;
-    const liberi = Object.values(numeriState).filter(v => v).length;
+    // Liberi = totale MAX meno venduti (non dipende da quanti doc sono arrivati)
+    const liberi = MAX - venduti;
     const incasso = allIscrizioni.reduce((s, i) => s + (i.importo || 0), 0);
     document.getElementById('kpi-iscrizioni').textContent = allIscrizioni.length;
     document.getElementById('kpi-incasso').textContent = `${incasso}€`;
     document.getElementById('kpi-venduti').textContent = venduti;
-    document.getElementById('kpi-liberi').textContent = liberi;
+    document.getElementById('kpi-liberi').textContent = liberi.toLocaleString('it-IT');
   }
 
   window.setFilter = function(val, el) {
