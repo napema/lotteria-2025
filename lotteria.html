@@ -28,17 +28,31 @@
   .field { display: flex; flex-direction: column; gap: 7px; }
   label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 500; }
   label .req { color: var(--gold); margin-left: 3px; }
-  input[type=text], input[type=tel], input[type=number], input[type=file] {
+  input[type=text], input[type=tel], input[type=number] {
     background: #1e1e1e; border: 1px solid var(--border); border-radius: 5px;
     color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
     padding: 11px 14px; outline: none; transition: border-color .2s; width: 100%;
   }
   input[type=number] { -moz-appearance: textfield; }
   input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  input[type=file] { cursor: pointer; padding: 10px 14px; }
-  input[type=file]::file-selector-button { background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px; margin-right: 12px; padding: 5px 12px; }
   input:focus { border-color: var(--gold); }
   input.invalid { border-color: var(--error) !important; }
+
+  /* FILE UPLOAD */
+  .upload-area {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 32px 20px;
+    text-align: center; cursor: pointer; transition: all .2s; position: relative; background: #111;
+  }
+  .upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .upload-area.has-file { border-color: var(--success); border-style: solid; background: rgba(76,175,121,0.05); }
+  .upload-area.invalid { border-color: var(--error) !important; }
+  .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; color: var(--muted); }
+  .upload-text strong { color: var(--gold); }
+  .upload-hint { font-size: 11px; color: #555; margin-top: 6px; }
+  .upload-filename { font-size: 13px; color: var(--success); margin-top: 8px; font-weight: 500; display: none; }
+
   .bank-box { background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb; }
   .bank-box strong { color: var(--gold-light); font-size: 12px; letter-spacing: .5px; }
 
@@ -92,17 +106,14 @@
   .progress-bar-bg { background: #1e1e1e; border-radius: 4px; height: 6px; overflow: hidden; }
   .progress-bar-fill { background: linear-gradient(to right, var(--gold), var(--gold-light)); height: 100%; border-radius: 4px; transition: width .3s ease; width: 0%; }
 
-  /* MESSAGES */
   .logic-msg { display: none; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.35); border-radius: 5px; color: var(--error); font-size: 13px; margin-top: 14px; padding: 10px 14px; }
   .logic-msg.visible { display: block; }
 
-  /* SUBMIT */
   .submit-btn { width: 100%; background: var(--gold); border: none; border-radius: 6px; color: #000; cursor: pointer; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; padding: 18px; transition: opacity .2s, transform .1s; margin-top: 8px; }
   .submit-btn:hover:not(:disabled) { opacity: .88; }
   .submit-btn:active { transform: scale(.99); }
   .submit-btn:disabled { opacity: .35; cursor: not-allowed; }
 
-  /* SUCCESS */
   #success-msg { display: none; text-align: center; padding: 60px 20px; }
   #success-msg .tick { font-size: 3.5rem; margin-bottom: 16px; }
   #success-msg h2 { font-family: 'Playfair Display', serif; color: var(--success); font-size: 2rem; margin-bottom: 10px; }
@@ -153,7 +164,13 @@
 
     <div class="card">
       <div class="section-title">Ricevuta di Pagamento</div>
-      <div class="field"><label>Carica la ricevuta <span class="req">*</span></label><input type="file" id="ricevuta" accept="image/*,.pdf" required></div>
+      <div class="upload-area" id="upload-area">
+        <input type="file" id="ricevuta" accept="image/*,.pdf">
+        <div class="upload-icon" id="upload-icon">📎</div>
+        <div class="upload-text" id="upload-text"><strong>Clicca qui</strong> o trascina il file</div>
+        <div class="upload-hint">Formati accettati: JPG, PNG, PDF · Max 10MB</div>
+        <div class="upload-filename" id="upload-filename"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -167,7 +184,6 @@
 
     <div class="card">
       <div class="section-title">Scegli i tuoi Numeri</div>
-
       <div class="picker-top">
         <div class="number-input-wrap">
           <input type="number" id="num-input" min="1" max="500" placeholder="Digita un numero tra 1 e 500" autocomplete="off">
@@ -176,18 +192,15 @@
         <button class="lucky-btn" id="lucky-btn" disabled>🎲 Pesca per me</button>
       </div>
       <div class="input-hint" id="input-hint">Seleziona prima un pacchetto</div>
-
       <div class="selected-header">
         <span class="selected-label">Numeri selezionati</span>
         <span class="selected-count" id="selected-count">0 / ?</span>
       </div>
       <div class="chips-area empty" id="chips-area"></div>
-
       <div class="progress-wrap">
         <div class="progress-label"><span>Completamento pacchetto</span><span id="progress-pct">0%</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
       </div>
-
       <div class="logic-msg" id="logic-error"></div>
     </div>
 
@@ -199,7 +212,7 @@
     <h2>Sei dentro!</h2>
     <p id="success-name"></p>
     <div class="success-nums" id="success-nums"></div>
-    <p>Riceverai una conferma via SMS.<br>Buona fortuna! 🍀</p>
+    <p>La tua ricevuta è stata inviata.<br>Buona fortuna! 🍀</p>
   </div>
 
 </div>
@@ -209,6 +222,9 @@
   import { getFirestore, doc, getDoc, collection, writeBatch, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const MAX = 500;
+  const TG_TOKEN = "8636580728:AAEiBCkhToEzLE6dVrshaA7a4qxf_WkzJbg";
+  const TG_CHAT  = "1949250119";
+
   const firebaseConfig = {
     apiKey: "AIzaSyDQWMkwOM7RO4hVK5-XqeBKGSyLgOS_feY",
     authDomain: "lotteria-primavera-205.firebaseapp.com",
@@ -226,17 +242,45 @@
   let currentPackage = 0;
   let dbReady = false;
 
+  // ── File upload UI ───────────────────────────────────────────────────
+  const ricevutaInput = document.getElementById('ricevuta');
+  const uploadArea = document.getElementById('upload-area');
+
+  ricevutaInput.addEventListener('change', () => {
+    const file = ricevutaInput.files[0];
+    if (file) {
+      uploadArea.classList.add('has-file');
+      uploadArea.classList.remove('invalid');
+      document.getElementById('upload-icon').textContent = '✅';
+      document.getElementById('upload-text').innerHTML = '<strong>File selezionato:</strong>';
+      const fn = document.getElementById('upload-filename');
+      fn.textContent = file.name;
+      fn.style.display = 'block';
+    }
+  });
+
+  // Drag & drop
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      ricevutaInput.files = e.dataTransfer.files;
+      ricevutaInput.dispatchEvent(new Event('change'));
+    }
+  });
+
   // ── Init 500 numeri ──────────────────────────────────────────────────
   async function initNumbers() {
     const statusEl = document.getElementById('db-status');
     try {
       const testDoc = await getDoc(doc(db, 'numeri', '1'));
       if (!testDoc.exists()) {
-        statusEl.textContent = '⏳ Prima configurazione (qualche secondo)...';
-        // Firebase batch max 500 ops — usiamo 2 batch da 250
-        for (let batch_start = 1; batch_start <= MAX; batch_start += 250) {
+        statusEl.textContent = '⏳ Prima configurazione...';
+        for (let s = 1; s <= MAX; s += 250) {
           const batch = writeBatch(db);
-          for (let i = batch_start; i < batch_start + 250 && i <= MAX; i++) {
+          for (let i = s; i < s + 250 && i <= MAX; i++) {
             batch.set(doc(db, 'numeri', String(i)), { numero: i, disponibile: true, prenotatoDa: null });
           }
           await batch.commit();
@@ -250,7 +294,6 @@
     } catch(e) {
       statusEl.textContent = '✗ Errore connessione';
       statusEl.className = 'db-status err';
-      console.error(e);
     }
   }
 
@@ -273,9 +316,7 @@
     radio.addEventListener('change', () => {
       currentPackage = parseInt(radio.value);
       while (selected.size > currentPackage) selected.delete([...selected][0]);
-      renderChips();
-      updateHint();
-      hideError();
+      renderChips(); updateHint(); hideError();
       document.getElementById('lucky-btn').disabled = false;
     });
   });
@@ -289,22 +330,10 @@
   function updateHint() {
     const hint = document.getElementById('input-hint');
     const val = parseInt(numInput.value);
-    if (!numInput.value) {
-      hint.textContent = currentPackage === 0 ? 'Seleziona prima un pacchetto' : `Digita un numero da 1 a ${MAX}`;
-      hint.className = 'input-hint'; return;
-    }
-    if (isNaN(val) || val < 1 || val > MAX) {
-      hint.textContent = `⚠ Numero non valido — scegli tra 1 e ${MAX}`;
-      hint.className = 'input-hint err'; return;
-    }
-    if (selected.has(val)) {
-      hint.textContent = `✓ Numero ${val} già selezionato da te`;
-      hint.className = 'input-hint ok'; return;
-    }
-    if (dbReady && !disponibili.has(val)) {
-      hint.textContent = `✗ Numero ${val} già prenotato da qualcun altro`;
-      hint.className = 'input-hint err'; return;
-    }
+    if (!numInput.value) { hint.textContent = currentPackage === 0 ? 'Seleziona prima un pacchetto' : `Digita un numero da 1 a ${MAX}`; hint.className = 'input-hint'; return; }
+    if (isNaN(val) || val < 1 || val > MAX) { hint.textContent = `⚠ Numero non valido — scegli tra 1 e ${MAX}`; hint.className = 'input-hint err'; return; }
+    if (selected.has(val)) { hint.textContent = `✓ Numero ${val} già selezionato da te`; hint.className = 'input-hint ok'; return; }
+    if (dbReady && !disponibili.has(val)) { hint.textContent = `✗ Numero ${val} già prenotato`; hint.className = 'input-hint err'; return; }
     hint.textContent = `✓ Numero ${val} disponibile — premi + per aggiungerlo`;
     hint.className = 'input-hint ok';
   }
@@ -316,7 +345,7 @@
     if (isNaN(val) || val < 1 || val > MAX) { showError(`Inserisci un numero valido tra 1 e ${MAX}.`); return; }
     if (selected.has(val)) { showError(`Il numero ${val} è già nella tua selezione.`); return; }
     if (dbReady && !disponibili.has(val)) { showError(`Il numero ${val} è già stato prenotato.`); return; }
-    if (selected.size >= currentPackage) { showError(`Hai già selezionato ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}. Rimuovine uno prima di aggiungerne un altro.`); return; }
+    if (selected.size >= currentPackage) { showError(`Hai già ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}. Rimuovine uno prima.`); return; }
     selected.add(val);
     numInput.value = '';
     document.getElementById('input-hint').textContent = '';
@@ -332,7 +361,6 @@
     if (quanti <= 0) { showError('Hai già tutti i numeri del pacchetto!'); return; }
     const pool = [...disponibili].filter(n => !selected.has(n));
     if (pool.length < quanti) { showError('Non ci sono abbastanza numeri disponibili.'); return; }
-    // Shuffle e prendi i primi N
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -341,21 +369,18 @@
     renderChips();
   });
 
-  // ── Render chips + progress ──────────────────────────────────────────
+  // ── Render chips ─────────────────────────────────────────────────────
   function renderChips() {
     const area = document.getElementById('chips-area');
     area.innerHTML = '';
-    if (selected.size === 0) {
-      area.classList.add('empty');
-    } else {
+    if (selected.size === 0) { area.classList.add('empty'); }
+    else {
       area.classList.remove('empty');
       [...selected].sort((a,b) => a-b).forEach(num => {
         const chip = document.createElement('div');
         chip.className = 'chip';
-        chip.innerHTML = `<span>${num}</span><button class="chip-remove" data-n="${num}" title="Rimuovi">×</button>`;
-        chip.querySelector('.chip-remove').addEventListener('click', () => {
-          selected.delete(num); renderChips(); hideError();
-        });
+        chip.innerHTML = `<span>${num}</span><button class="chip-remove" title="Rimuovi">×</button>`;
+        chip.querySelector('.chip-remove').addEventListener('click', () => { selected.delete(num); renderChips(); hideError(); });
         area.appendChild(chip);
       });
     }
@@ -365,26 +390,50 @@
     document.getElementById('selected-count').textContent = `${selected.size} / ${currentPackage || '?'}`;
   }
 
-  function showError(msg) {
-    const el = document.getElementById('logic-error');
-    el.innerHTML = '⚠️ ' + msg;
-    el.classList.add('visible');
-  }
+  function showError(msg) { const el = document.getElementById('logic-error'); el.innerHTML = '⚠️ ' + msg; el.classList.add('visible'); }
   function hideError() { document.getElementById('logic-error').classList.remove('visible'); }
+
+  // ── Telegram helpers ─────────────────────────────────────────────────
+  async function tgSendMessage(text) {
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT, text, parse_mode: 'HTML' })
+    });
+  }
+
+  async function tgSendFile(file, caption) {
+    const form = new FormData();
+    form.append('chat_id', TG_CHAT);
+    form.append('caption', caption);
+    // Usa sendPhoto per immagini, sendDocument per PDF
+    const isImage = file.type.startsWith('image/');
+    const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
+    form.append(isImage ? 'photo' : 'document', file);
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/${endpoint}`, {
+      method: 'POST',
+      body: form
+    });
+  }
 
   // ── Submit ───────────────────────────────────────────────────────────
   document.getElementById('submit-btn').addEventListener('click', async () => {
     if (!dbReady) return;
     hideError();
+
     let valid = true;
     ['nome','cognome','telefono'].forEach(id => {
       const el = document.getElementById(id);
       if (!el.value.trim()) { el.classList.add('invalid'); valid = false; }
       else el.classList.remove('invalid');
     });
-    if (!document.getElementById('ricevuta').files.length) {
-      document.getElementById('ricevuta').classList.add('invalid'); valid = false;
-    } else document.getElementById('ricevuta').classList.remove('invalid');
+
+    const fileEl = document.getElementById('ricevuta');
+    if (!fileEl.files.length) {
+      document.getElementById('upload-area').classList.add('invalid');
+      valid = false;
+    } else document.getElementById('upload-area').classList.remove('invalid');
+
     if (!currentPackage) { showError('Seleziona un pacchetto.'); valid = false; }
     if (currentPackage && selected.size !== currentPackage) {
       showError(`Devi selezionare esattamente <strong>${currentPackage}</strong> numero${currentPackage > 1 ? 'i' : ''}. Ne hai ${selected.size}.`);
@@ -393,15 +442,17 @@
     if (!valid) return;
 
     const btn = document.getElementById('submit-btn');
-    btn.disabled = true; btn.textContent = '⏳ Invio in corso...';
+    btn.disabled = true; btn.textContent = '⏳ Salvataggio numeri...';
 
     const nome = document.getElementById('nome').value.trim();
     const cognome = document.getElementById('cognome').value.trim();
     const telefono = document.getElementById('telefono').value.trim();
     const numeriScelti = [...selected].sort((a,b) => a-b);
     const timestamp = new Date().toISOString();
+    const importo = currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15;
 
     try {
+      // 1. Prenota numeri su Firestore
       await runTransaction(db, async (tx) => {
         for (const num of numeriScelti) {
           const ref = doc(db, 'numeri', String(num));
@@ -413,12 +464,24 @@
           tx.update(doc(db, 'numeri', String(num)), { disponibile: false, prenotatoDa: `${nome} ${cognome}`, prenotatoIl: timestamp });
         }
         tx.set(doc(collection(db, 'iscrizioni')), {
-          nome, cognome, telefono, pacchetto: currentPackage, numeri: numeriScelti,
-          importo: currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15,
-          timestamp, ricevutaCaricata: true
+          nome, cognome, telefono, pacchetto: currentPackage,
+          numeri: numeriScelti, importo, timestamp, ricevutaCaricata: true
         });
       });
 
+      // 2. Invia notifica Telegram con ricevuta
+      btn.textContent = '⏳ Invio ricevuta...';
+      const file = fileEl.files[0];
+      const caption = `🎟️ NUOVA ISCRIZIONE\n\n👤 ${nome} ${cognome}\n📞 ${telefono}\n📦 Pacchetto: ${currentPackage} numero${currentPackage > 1 ? 'i' : ''} — ${importo}€\n🔢 Numeri: ${numeriScelti.join(', ')}\n📅 ${new Date(timestamp).toLocaleString('it-IT')}`;
+
+      try {
+        await tgSendFile(file, caption);
+      } catch(e) {
+        // Se il file fallisce, manda almeno il testo
+        await tgSendMessage(caption + '\n\n⚠️ Ricevuta non allegata — verifica manualmente.');
+      }
+
+      // 3. Successo
       document.getElementById('form-container').style.display = 'none';
       document.getElementById('success-msg').style.display = 'block';
       document.getElementById('success-name').textContent = `${nome} ${cognome} — Pacchetto ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}`;
@@ -427,6 +490,7 @@
         const el = document.createElement('div');
         el.className = 'success-num'; el.textContent = n; numsEl.appendChild(el);
       });
+
     } catch(e) {
       showError(e.message || 'Errore. Riprova.');
       btn.disabled = false; btn.textContent = '✦ Conferma Partecipazione';
