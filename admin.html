@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Lotteria Primavera 2025</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<!-- SheetJS per export Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -42,7 +41,8 @@
     width: 100%; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
     color: #fff; font-family: inherit; font-size: 14px; padding: 12px 14px;
     margin-bottom: 14px; outline: none;
-  }  .login-box input:focus { border-color: var(--gold); }
+  }
+  .login-box input:focus { border-color: var(--gold); }
   .login-btn {
     width: 100%; background: var(--gold); border: none; border-radius: 6px;
     color: #000; cursor: pointer; font-family: inherit; font-size: 15px;
@@ -200,7 +200,6 @@
 </head>
 <body>
 
-<!-- Custom tooltip -->
 <div id="map-tooltip">
   <span class="tt-num" id="tt-num">—</span>
   <span class="tt-status" id="tt-status"></span>
@@ -213,11 +212,10 @@
     <input type="email" id="email-input" placeholder="Email" onkeydown="if(event.key==='Enter')doLogin()">
     <input type="password" id="pwd-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Accedi</button>
-    <div class="login-err" id="login-err"></div>
+    <div class="login-err" id="login-err">Password errata</div>
   </div>
 </div>
 
-<!-- ADMIN -->
 <div id="admin-screen">
   <div class="topbar">
     <div class="topbar-left">
@@ -231,7 +229,6 @@
   </div>
 
   <main>
-    <!-- KPI -->
     <div class="kpi-grid">
       <div class="kpi green">
         <div class="kpi-label">Iscrizioni Totali</div>
@@ -255,7 +252,6 @@
       </div>
     </div>
 
-    <!-- MAPPA NUMERI -->
     <div class="section">
       <div class="section-header">
         <div>
@@ -265,11 +261,9 @@
         <div id="map-loading" style="font-size:12px;color:var(--muted)">⏳ Caricamento mappa...</div>
       </div>
       <div class="num-map" id="num-map">
-        <!-- generato da JS -->
-      </div>
+        </div>
     </div>
 
-    <!-- TABELLA ISCRIZIONI -->
     <div class="section">
       <div class="section-header">
         <div>
@@ -330,7 +324,8 @@
 
   const ADMIN_PASSWORD = "lotteria2025admin";
 
-  window.checkLogin = function() {
+  // FIXATO: Rinominata la funzione in doLogin per fare match con l'HTML
+  window.doLogin = function() {
     const pwd = document.getElementById('pwd-input').value;
     if (pwd === ADMIN_PASSWORD) {
       document.getElementById('login-screen').style.display = 'none';
@@ -345,37 +340,79 @@
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('admin-screen').style.display = 'none';
     document.getElementById('pwd-input').value = '';
+    document.getElementById('email-input').value = '';
   };
 
   let allIscrizioni = [];
+  let numeriVendutiMap = new Map(); // Ottimizzato per salvare anche i dati dell'acquirente
   let activeFilter = 'tutti';
   const MAX = 5000;
 
-  // Inizializza celle mappa (grafica)
+  // Inizializza celle mappa
   const mapEl = document.getElementById('num-map');
   for (let i = 1; i <= MAX; i++) {
     const cell = document.createElement('div');
     cell.classList.add('num-cell', 'loading-cell');
     cell.id = `cell-${i}`;
-    cell.title = String(i);
+    // Rimosso il title nativo per usare il tuo tooltip custom
     mapEl.appendChild(cell);
   }
 
+  // Gestione Tooltip Custom
+  const tooltip = document.getElementById('map-tooltip');
+  const ttNum = document.getElementById('tt-num');
+  const ttStatus = document.getElementById('tt-status');
+  const ttWho = document.getElementById('tt-who');
+
+  mapEl.addEventListener('mouseover', (e) => {
+    if (e.target.classList.contains('num-cell')) {
+      const num = parseInt(e.target.id.split('-')[1]);
+      ttNum.textContent = num;
+      
+      if (numeriVendutiMap.has(num)) {
+        const acquirente = numeriVendutiMap.get(num);
+        ttStatus.textContent = 'VENDUTO';
+        ttStatus.className = 'tt-status taken';
+        ttWho.textContent = `${acquirente.nome} ${acquirente.cognome}`;
+      } else {
+        ttStatus.textContent = 'LIBERO';
+        ttStatus.className = 'tt-status free';
+        ttWho.textContent = '';
+      }
+      
+      tooltip.classList.add('visible');
+    }
+  });
+
+  mapEl.addEventListener('mousemove', (e) => {
+    tooltip.style.left = e.clientX + 'px';
+    tooltip.style.top = e.clientY + 'px';
+  });
+
+  mapEl.addEventListener('mouseout', (e) => {
+    if (e.target.classList.contains('num-cell')) {
+      tooltip.classList.remove('visible');
+    }
+  });
+
   function startListeners() {
-    // ELIMINATA LA CHIAMATA A "numeri". 
-    // Ora usiamo SOLO "iscrizioni" per dedurre la mappa. Efficienza massima.
-    
+    // Usiamo SOLO "iscrizioni" per mappare tutto
     onSnapshot(collection(db, 'iscrizioni'), snap => {
       allIscrizioni = [];
-      let numeriVendutiSet = new Set(); // O(1) lookup speed
+      numeriVendutiMap.clear();
 
       snap.forEach(d => {
         const data = d.data();
         allIscrizioni.push({ id: d.id, ...data });
         
-        // Estrapola i numeri venduti direttamente dalle iscrizioni
+        // Estrapola i numeri e salva chi li ha comprati
         if (data.numeri && Array.isArray(data.numeri)) {
-          data.numeri.forEach(n => numeriVendutiSet.add(Number(n)));
+          data.numeri.forEach(n => {
+            numeriVendutiMap.set(Number(n), {
+              nome: data.nome || 'Sconosciuto',
+              cognome: data.cognome || ''
+            });
+          });
         }
       });
 
@@ -386,7 +423,7 @@
       for (let i = 1; i <= MAX; i++) {
         const cell = document.getElementById(`cell-${i}`);
         if (cell) {
-          const isVenduto = numeriVendutiSet.has(i);
+          const isVenduto = numeriVendutiMap.has(i);
           cell.className = 'num-cell ' + (isVenduto ? 'taken' : 'free');
         }
       }
@@ -396,14 +433,13 @@
       if (loadEl) loadEl.style.display = 'none';
 
       // Aggiorna KPI e Tabella
-      window.vendutiCount = numeriVendutiSet.size;
       updateKPI();
       renderTable();
     });
   }
 
   function updateKPI() {
-    const venduti = window.vendutiCount || 0;
+    const venduti = numeriVendutiMap.size;
     const liberi = MAX - venduti;
     const incasso = allIscrizioni.reduce((s, i) => s + (Number(i.importo) || 0), 0);
     
