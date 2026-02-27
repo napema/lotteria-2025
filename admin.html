@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lotteria Primavera 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- SheetJS per export Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #F4F5F7;
+    --white: #ffffff;
+    --dark: #1a1d23;
+    --text: #2d3139;
+    --muted: #8a8f9c;
+    --border: #e2e4e9;
+    --gold: #C9A84C;
+    --gold-bg: #FDF6E3;
+    --green: #2E9E5B;
+    --green-bg: #EBF7F1;
+    --red: #D94F4F;
+    --red-bg: #FDEAEA;
+    --blue: #3B6FD4;
+    --blue-bg: #EBF0FB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* LOGIN */
+  #login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: var(--dark);
+  }
+  .login-box {
+    background: #222; border: 1px solid #333; border-radius: 12px;
+    padding: 40px; width: 100%; max-width: 360px; text-align: center;
+  }
+  .login-box h2 { color: #fff; font-size: 1.4rem; margin-bottom: 6px; }
+  .login-box p { color: #666; font-size: 13px; margin-bottom: 28px; }
+  .login-box input {
+    width: 100%; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
+    color: #fff; font-family: inherit; font-size: 14px; padding: 12px 14px;
+    margin-bottom: 14px; outline: none;
+  }
+  .login-box input:focus { border-color: var(--gold); }
+  .login-btn {
+    width: 100%; background: var(--gold); border: none; border-radius: 6px;
+    color: #000; cursor: pointer; font-family: inherit; font-size: 15px;
+    font-weight: 600; padding: 13px; transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .85; }
+  .login-err { color: #e05555; font-size: 12px; margin-top: 10px; display: none; }
+
+  /* LAYOUT */
+  #admin-screen { display: none; }
+  .topbar {
+    background: var(--dark); color: #fff; padding: 0 28px;
+    height: 58px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo { font-weight: 700; font-size: 15px; }
+  .topbar-badge {
+    background: var(--gold); color: #000; font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 10px; letter-spacing: .5px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .logout-btn {
+    background: transparent; border: 1px solid #444; border-radius: 5px;
+    color: #aaa; cursor: pointer; font-family: inherit; font-size: 12px; padding: 6px 12px;
+  }
+  .logout-btn:hover { border-color: #888; color: #fff; }
+
+  main { padding: 28px; max-width: 1300px; margin: 0 auto; }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  @media(max-width:900px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:500px){ .kpi-grid { grid-template-columns: 1fr; } }
+
+  .kpi {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .kpi-label { font-size: 11px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .kpi.green .kpi-value { color: var(--green); }
+  .kpi.gold .kpi-value { color: var(--gold); }
+  .kpi.blue .kpi-value { color: var(--blue); }
+  .kpi.red .kpi-value { color: var(--red); }
+
+  /* NUMBERS MAP */
+  .section { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 22px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .section-title { font-weight: 600; font-size: 15px; }
+  .section-sub { font-size: 12px; color: var(--muted); }
+
+  .num-map { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+  @media(max-width:600px){ .num-map { grid-template-columns: repeat(6,1fr); } }
+  .num-cell {
+    aspect-ratio: 1; border-radius: 5px; font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+  }
+  .num-cell.free { background: var(--green-bg); color: var(--green); }
+  .num-cell.taken { background: var(--red-bg); color: var(--red); }
+  .num-cell.loading-cell { background: var(--border); color: transparent; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+  .search-input {
+    flex: 1; min-width: 200px; background: var(--white); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px;
+    padding: 9px 14px; outline: none;
+  }
+  .search-input:focus { border-color: var(--blue); }
+
+  .filter-btn {
+    background: var(--white); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px;
+    font-weight: 500; padding: 9px 14px; transition: all .15s;
+  }
+  .filter-btn:hover, .filter-btn.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+  .export-btn {
+    background: var(--green); border: none; border-radius: 6px;
+    color: #fff; cursor: pointer; font-family: inherit; font-size: 12px;
+    font-weight: 600; padding: 9px 16px; transition: opacity .2s; white-space: nowrap;
+  }
+  .export-btn:hover { opacity: .85; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--bg); border-bottom: 1px solid var(--border); color: var(--muted);
+    font-size: 11px; font-weight: 600; letter-spacing: .5px; padding: 10px 14px;
+    text-align: left; text-transform: uppercase; white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:hover { background: #f9f9fb; }
+  tbody td { padding: 12px 14px; vertical-align: middle; }
+
+  .badge-pkg {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 12px; font-size: 11px; font-weight: 600; padding: 3px 10px;
+  }
+  .badge-pkg.p1 { background: var(--blue-bg); color: var(--blue); }
+  .badge-pkg.p3 { background: var(--gold-bg); color: #8a6a00; }
+  .badge-pkg.p5 { background: var(--green-bg); color: var(--green); }
+
+  .num-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .num-tag {
+    background: var(--red-bg); color: var(--red); border-radius: 4px;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    padding: 2px 6px;
+  }
+
+  .empty-state { text-align: center; padding: 48px; color: var(--muted); }
+  .empty-state div { font-size: 2rem; margin-bottom: 10px; }
+
+  .live-dot {
+    width: 7px; height: 7px; background: var(--green); border-radius: 50%;
+    display: inline-block; margin-right: 6px;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+  .ts { color: var(--muted); font-size: 12px; font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🔐 Admin</h2>
+    <p>Accesso riservato alla gestione della lotteria</p>
+    <input type="password" id="pwd-input" placeholder="Password admin" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Accedi</button>
+    <div class="login-err" id="login-err">Password errata</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">🎟️ Lotteria Primavera 2025</span>
+      <span class="topbar-badge">ADMIN</span>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:#888"><span class="live-dot"></span>Live</span>
+      <button class="logout-btn" onclick="logout()">Esci</button>
+    </div>
+  </div>
+
+  <main>
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi green">
+        <div class="kpi-label">Iscrizioni Totali</div>
+        <div class="kpi-value" id="kpi-iscrizioni">—</div>
+        <div class="kpi-sub">partecipanti</div>
+      </div>
+      <div class="kpi gold">
+        <div class="kpi-label">Incasso Totale</div>
+        <div class="kpi-value" id="kpi-incasso">—</div>
+        <div class="kpi-sub">euro raccolti</div>
+      </div>
+      <div class="kpi red">
+        <div class="kpi-label">Numeri Venduti</div>
+        <div class="kpi-value" id="kpi-venduti">—</div>
+        <div class="kpi-sub">su 90 totali</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-label">Numeri Liberi</div>
+        <div class="kpi-value" id="kpi-liberi">—</div>
+        <div class="kpi-sub">ancora disponibili</div>
+      </div>
+    </div>
+
+    <!-- MAPPA NUMERI -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Mappa Numeri</div>
+          <div class="section-sub">Verde = libero · Rosso = venduto</div>
+        </div>
+      </div>
+      <div class="num-map" id="num-map">
+        <!-- generato da JS -->
+      </div>
+    </div>
+
+    <!-- TABELLA ISCRIZIONI -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Iscrizioni</div>
+          <div class="section-sub" id="table-count">Caricamento...</div>
+        </div>
+        <button class="export-btn" onclick="exportExcel()">⬇ Esporta Excel</button>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" class="search-input" id="search" placeholder="🔍  Cerca per nome, cognome, telefono..." oninput="renderTable()">
+        <button class="filter-btn active" onclick="setFilter('tutti', this)">Tutti</button>
+        <button class="filter-btn" onclick="setFilter(1, this)">1 numero</button>
+        <button class="filter-btn" onclick="setFilter(3, this)">3 numeri</button>
+        <button class="filter-btn" onclick="setFilter(5, this)">5 numeri</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Cognome</th>
+              <th>Telefono</th>
+              <th>Pacchetto</th>
+              <th>Numeri</th>
+              <th>Importo</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display:none">
+          <div>📋</div>
+          <div>Nessuna iscrizione trovata</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQWMkwOM7RO4hVK5-XqeBKGSyLgOS_feY",
+    authDomain: "lotteria-primavera-205.firebaseapp.com",
+    projectId: "lotteria-primavera-205",
+    storageBucket: "lotteria-primavera-205.firebasestorage.app",
+    messagingSenderId: "539303949492",
+    appId: "1:539303949492:web:6b0afe5de189b1444153e1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // PASSWORD ADMIN (cambiala!)
+  const ADMIN_PASSWORD = "lotteria2025admin";
+
+  window.checkLogin = function() {
+    const pwd = document.getElementById('pwd-input').value;
+    if (pwd === ADMIN_PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'block';
+      startListeners();
+    } else {
+      document.getElementById('login-err').style.display = 'block';
+    }
+  };
+
+  window.logout = function() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-screen').style.display = 'none';
+    document.getElementById('pwd-input').value = '';
+  };
+
+  // Data
+  let allIscrizioni = [];
+  let numeriState = {};
+  let activeFilter = 'tutti';
+
+  // Numero map init
+  const mapEl = document.getElementById('num-map');
+  for (let i = 1; i <= 90; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('num-cell', 'loading-cell');
+    cell.textContent = i;
+    cell.id = `cell-${i}`;
+    mapEl.appendChild(cell);
+  }
+
+  function startListeners() {
+    // Ascolta numeri
+    onSnapshot(collection(db, 'numeri'), snap => {
+      snap.forEach(d => {
+        const data = d.data();
+        numeriState[data.numero] = data.disponibile;
+        const cell = document.getElementById(`cell-${data.numero}`);
+        if (cell) {
+          cell.className = 'num-cell ' + (data.disponibile ? 'free' : 'taken');
+        }
+      });
+      updateKPI();
+    });
+
+    // Ascolta iscrizioni — NOTA: richiede regola read=true in Firestore per admin
+    onSnapshot(collection(db, 'iscrizioni'), snap => {
+      allIscrizioni = [];
+      snap.forEach(d => allIscrizioni.push({ id: d.id, ...d.data() }));
+      allIscrizioni.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+      updateKPI();
+      renderTable();
+    });
+  }
+
+  function updateKPI() {
+    const venduti = Object.values(numeriState).filter(v => !v).length;
+    const liberi = Object.values(numeriState).filter(v => v).length;
+    const incasso = allIscrizioni.reduce((s, i) => s + (i.importo || 0), 0);
+    document.getElementById('kpi-iscrizioni').textContent = allIscrizioni.length;
+    document.getElementById('kpi-incasso').textContent = `${incasso}€`;
+    document.getElementById('kpi-venduti').textContent = venduti;
+    document.getElementById('kpi-liberi').textContent = liberi;
+  }
+
+  window.setFilter = function(val, el) {
+    activeFilter = val;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTable();
+  };
+
+  window.renderTable = function() {
+    const query = document.getElementById('search').value.toLowerCase();
+    let data = allIscrizioni;
+
+    if (activeFilter !== 'tutti') data = data.filter(i => i.pacchetto === activeFilter);
+    if (query) data = data.filter(i =>
+      (i.nome||'').toLowerCase().includes(query) ||
+      (i.cognome||'').toLowerCase().includes(query) ||
+      (i.telefono||'').toLowerCase().includes(query)
+    );
+
+    const tbody = document.getElementById('table-body');
+    const empty = document.getElementById('empty-state');
+    document.getElementById('table-count').textContent = `${data.length} iscrizioni`;
+
+    if (data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = data.map((row, idx) => {
+      const pkgClass = row.pacchetto === 1 ? 'p1' : row.pacchetto === 3 ? 'p3' : 'p5';
+      const pkgLabel = row.pacchetto === 1 ? '1 numero' : `${row.pacchetto} numeri`;
+      const numTags = (row.numeri || []).map(n => `<span class="num-tag">${n}</span>`).join('');
+      const date = row.timestamp ? new Date(row.timestamp).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      return `
+        <tr>
+          <td class="ts">${idx+1}</td>
+          <td><strong>${row.nome||'—'}</strong></td>
+          <td>${row.cognome||'—'}</td>
+          <td class="ts">${row.telefono||'—'}</td>
+          <td><span class="badge-pkg ${pkgClass}">${pkgLabel}</span></td>
+          <td><div class="num-tags">${numTags}</div></td>
+          <td><strong>${row.importo||'—'}€</strong></td>
+          <td class="ts">${date}</td>
+        </tr>`;
+    }).join('');
+  };
+
+  window.exportExcel = function() {
+    const data = allIscrizioni.map((row, idx) => ({
+      '#': idx + 1,
+      'Nome': row.nome || '',
+      'Cognome': row.cognome || '',
+      'Telefono': row.telefono || '',
+      'Pacchetto': `${row.pacchetto} numero${row.pacchetto > 1 ? 'i' : ''}`,
+      'Numeri': (row.numeri || []).join(', '),
+      'Importo (€)': row.importo || 0,
+      'Data': row.timestamp ? new Date(row.timestamp).toLocaleString('it-IT') : ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [
+      {wch:4},{wch:16},{wch:16},{wch:18},{wch:14},{wch:24},{wch:12},{wch:20}
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Iscrizioni');
+    XLSX.writeFile(wb, `lotteria-iscrizioni-${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+</script>
+</body>
+</html>
