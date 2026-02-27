@@ -101,14 +101,38 @@
   @media(max-width:500px){ .num-map { grid-template-columns: repeat(20, 1fr); } }
   .num-cell {
     aspect-ratio: 1; border-radius: 2px;
-    font-size: 0px; /* testo nascosto — troppo piccolo */
-    cursor: default;
-    transition: transform .1s;
+    font-size: 0px;
+    cursor: crosshair;
+    transition: transform .1s, opacity .1s;
   }
-  .num-cell:hover { transform: scale(2.5); z-index: 10; position: relative; border-radius: 3px; }
+  .num-cell:hover { transform: scale(3); z-index: 10; position: relative; border-radius: 3px; opacity: 1 !important; }
   .num-cell.free { background: var(--green-bg); border: 1px solid rgba(46,158,91,0.3); }
   .num-cell.taken { background: var(--red); opacity: 0.75; border: 1px solid rgba(217,79,79,0.4); }
   .num-cell.loading-cell { background: var(--border); animation: pulse 1s infinite; }
+
+  /* Custom tooltip */
+  #map-tooltip {
+    position: fixed; pointer-events: none; z-index: 9999;
+    background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+    padding: 8px 12px; display: none; flex-direction: column; gap: 2px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transform: translate(14px, -50%);
+    transition: opacity .1s;
+  }
+  #map-tooltip.visible { display: flex; }
+  #map-tooltip .tt-num {
+    font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700;
+    color: #fff; line-height: 1;
+  }
+  #map-tooltip .tt-status {
+    font-size: 11px; font-weight: 500; letter-spacing: .5px;
+  }
+  #map-tooltip .tt-status.free { color: var(--green); }
+  #map-tooltip .tt-status.taken { color: #ff7070; }
+  #map-tooltip .tt-who {
+    font-size: 10px; color: #666; margin-top: 2px;
+    max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
 
   /* TOOLBAR */
@@ -176,7 +200,12 @@
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- Custom tooltip -->
+<div id="map-tooltip">
+  <span class="tt-num" id="tt-num">—</span>
+  <span class="tt-status" id="tt-status"></span>
+  <span class="tt-who" id="tt-who"></span>
+</div>
 <div id="login-screen">
   <div class="login-box">
     <h2>🔐 Admin</h2>
@@ -358,7 +387,39 @@
     mapEl.appendChild(cell);
   }
 
-  function startListeners() {
+  // ── Tooltip mappa ────────────────────────────────────────────────────
+  const tooltip = document.getElementById('map-tooltip');
+  const ttNum = document.getElementById('tt-num');
+  const ttStatus = document.getElementById('tt-status');
+  const ttWho = document.getElementById('tt-who');
+
+  document.getElementById('num-map').addEventListener('mousemove', e => {
+    const cell = e.target.closest('.num-cell');
+    if (!cell) { tooltip.classList.remove('visible'); return; }
+
+    const num = cell.id.replace('cell-','');
+    const libero = cell.dataset.disponibile === 'true';
+    const chi = cell.dataset.prenotatoDa || '';
+
+    ttNum.textContent = `N° ${num}`;
+    ttStatus.textContent = libero ? '● Libero' : '● Venduto';
+    ttStatus.className = 'tt-status ' + (libero ? 'free' : 'taken');
+    ttWho.textContent = chi ? `👤 ${chi}` : '';
+    ttWho.style.display = chi ? 'block' : 'none';
+
+    // Posizione tooltip: segue il mouse, si sposta a sinistra se troppo vicino al bordo
+    const x = e.clientX;
+    const y = e.clientY;
+    const tw = tooltip.offsetWidth || 140;
+    const overRight = x + tw + 20 > window.innerWidth;
+    tooltip.style.left = (overRight ? x - tw - 14 : x + 14) + 'px';
+    tooltip.style.top = (y - 30) + 'px';
+    tooltip.classList.add('visible');
+  });
+
+  document.getElementById('num-map').addEventListener('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
     let loadingComplete = false;
 
     // Ascolta numeri
@@ -369,6 +430,8 @@
         const cell = document.getElementById(`cell-${data.numero}`);
         if (cell) {
           cell.className = 'num-cell ' + (data.disponibile ? 'free' : 'taken');
+          cell.dataset.disponibile = data.disponibile;
+          cell.dataset.prenotatoDa = data.prenotatoDa || '';
         }
       });
 
