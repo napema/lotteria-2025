@@ -278,14 +278,21 @@
     }
   });
 
-  // ── Init 500 numeri ──────────────────────────────────────────────────
+  // ── Init numeri (background, non blocca UI) ──────────────────────────
   async function initNumbers() {
     const statusEl = document.getElementById('db-status');
     try {
+      // Mostra subito connesso e abilita il form
+      statusEl.textContent = '✓ Database connesso';
+      statusEl.className = 'db-status ok';
+      dbReady = true;
+      document.getElementById('submit-btn').disabled = false;
+      document.getElementById('submit-btn').textContent = '✦ Conferma Partecipazione';
+
+      // Controlla in background se i numeri esistono già
       const testDoc = await getDoc(doc(db, 'numeri', '1'));
       if (!testDoc.exists()) {
-        statusEl.textContent = '⏳ Prima configurazione (può richiedere qualche secondo)...';
-        // Firebase batch max 500 ops — usiamo batch da 500
+        // Prima configurazione silenziosa in background
         for (let s = 1; s <= MAX; s += 499) {
           const batch = writeBatch(db);
           for (let i = s; i < s + 499 && i <= MAX; i++) {
@@ -294,14 +301,12 @@
           await batch.commit();
         }
       }
-      statusEl.textContent = '✓ Database connesso';
-      statusEl.className = 'db-status ok';
-      dbReady = true;
-      document.getElementById('submit-btn').disabled = false;
-      document.getElementById('submit-btn').textContent = '✦ Conferma Partecipazione';
     } catch(e) {
       statusEl.textContent = '✗ Errore connessione';
       statusEl.className = 'db-status err';
+      dbReady = false;
+      document.getElementById('submit-btn').disabled = true;
+      document.getElementById('submit-btn').textContent = '✗ Errore — ricarica la pagina';
     }
   }
 
