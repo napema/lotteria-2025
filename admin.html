@@ -315,7 +315,6 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDQWMkwOM7RO4hVK5-XqeBKGSyLgOS_feY",
@@ -328,140 +327,86 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth(app);
 
-  // ── Auth ─────────────────────────────────────────────────────────────
-  window.doLogin = async function() {
-    const email = document.getElementById('email-input').value.trim();
+  const ADMIN_PASSWORD = "lotteria2025admin";
+
+  window.checkLogin = function() {
     const pwd = document.getElementById('pwd-input').value;
-    const errEl = document.getElementById('login-err');
-    errEl.style.display = 'none';
-
-    if (!email || !pwd) {
-      errEl.textContent = 'Inserisci email e password.';
-      errEl.style.display = 'block';
-      return;
-    }
-
-    try {
-      await signInWithEmailAndPassword(auth, email, pwd);
-      // onAuthStateChanged gestirà il resto
-    } catch(e) {
-      errEl.textContent = e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found'
-        ? 'Email o password errati.'
-        : 'Errore di accesso. Riprova.';
-      errEl.style.display = 'block';
-    }
-  };
-
-  window.logout = async function() {
-    await signOut(auth);
-  };
-
-  // Ascolta stato autenticazione
-  onAuthStateChanged(auth, user => {
-    if (user) {
+    if (pwd === ADMIN_PASSWORD) {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('admin-screen').style.display = 'block';
       startListeners();
     } else {
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('login-err').style.display = 'block';
     }
-  });
+  };
 
-  // Data
+  window.logout = function() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-screen').style.display = 'none';
+    document.getElementById('pwd-input').value = '';
+  };
+
   let allIscrizioni = [];
-  let numeriState = {};
   let activeFilter = 'tutti';
-
   const MAX = 5000;
 
-  // Numero map init
+  // Inizializza celle mappa (grafica)
   const mapEl = document.getElementById('num-map');
   for (let i = 1; i <= MAX; i++) {
     const cell = document.createElement('div');
     cell.classList.add('num-cell', 'loading-cell');
     cell.id = `cell-${i}`;
-    cell.title = String(i); // tooltip al hover
+    cell.title = String(i);
     mapEl.appendChild(cell);
   }
 
-  // ── Tooltip mappa ────────────────────────────────────────────────────
-  const tooltip = document.getElementById('map-tooltip');
-  const ttNum = document.getElementById('tt-num');
-  const ttStatus = document.getElementById('tt-status');
-  const ttWho = document.getElementById('tt-who');
+  function startListeners() {
+    // ELIMINATA LA CHIAMATA A "numeri". 
+    // Ora usiamo SOLO "iscrizioni" per dedurre la mappa. Efficienza massima.
+    
+    onSnapshot(collection(db, 'iscrizioni'), snap => {
+      allIscrizioni = [];
+      let numeriVendutiSet = new Set(); // O(1) lookup speed
 
-  document.getElementById('num-map').addEventListener('mousemove', e => {
-    const cell = e.target.closest('.num-cell');
-    if (!cell) { tooltip.classList.remove('visible'); return; }
-
-    const num = cell.id.replace('cell-','');
-    const libero = cell.dataset.disponibile === 'true';
-    const chi = cell.dataset.prenotatoDa || '';
-
-    ttNum.textContent = `N° ${num}`;
-    ttStatus.textContent = libero ? '● Libero' : '● Venduto';
-    ttStatus.className = 'tt-status ' + (libero ? 'free' : 'taken');
-    ttWho.textContent = chi ? `👤 ${chi}` : '';
-    ttWho.style.display = chi ? 'block' : 'none';
-
-    // Posizione tooltip: segue il mouse, si sposta a sinistra se troppo vicino al bordo
-    const x = e.clientX;
-    const y = e.clientY;
-    const tw = tooltip.offsetWidth || 140;
-    const overRight = x + tw + 20 > window.innerWidth;
-    tooltip.style.left = (overRight ? x - tw - 14 : x + 14) + 'px';
-    tooltip.style.top = (y - 30) + 'px';
-    tooltip.classList.add('visible');
-  });
-
-  document.getElementById('num-map').addEventListener('mouseleave', () => {
-    tooltip.classList.remove('visible');
-  });
-    let loadingComplete = false;
-
-    // Ascolta numeri
-    onSnapshot(collection(db, 'numeri'), snap => {
-      snap.docChanges().forEach(change => {
-        const data = change.doc.data();
-        numeriState[data.numero] = data.disponibile;
-        const cell = document.getElementById(`cell-${data.numero}`);
-        if (cell) {
-          cell.className = 'num-cell ' + (data.disponibile ? 'free' : 'taken');
-          cell.dataset.disponibile = data.disponibile;
-          cell.dataset.prenotatoDa = data.prenotatoDa || '';
+      snap.forEach(d => {
+        const data = d.data();
+        allIscrizioni.push({ id: d.id, ...data });
+        
+        // Estrapola i numeri venduti direttamente dalle iscrizioni
+        if (data.numeri && Array.isArray(data.numeri)) {
+          data.numeri.forEach(n => numeriVendutiSet.add(Number(n)));
         }
       });
 
-      // Nascondi indicatore caricamento quando mappa è completa
-      const loaded = Object.keys(numeriState).length;
-      const loadEl = document.getElementById('map-loading');
-      if (loaded >= MAX) {
-        if (loadEl) loadEl.style.display = 'none';
-      } else {
-        if (loadEl) loadEl.textContent = `⏳ ${loaded.toLocaleString('it-IT')} / ${MAX.toLocaleString('it-IT')}`;
+      // Ordina tabella per data
+      allIscrizioni.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      // Aggiorna Mappa UI
+      for (let i = 1; i <= MAX; i++) {
+        const cell = document.getElementById(`cell-${i}`);
+        if (cell) {
+          const isVenduto = numeriVendutiSet.has(i);
+          cell.className = 'num-cell ' + (isVenduto ? 'taken' : 'free');
+        }
       }
 
-      updateKPI();
-    });
+      // Rimuovi loading state
+      const loadEl = document.getElementById('map-loading');
+      if (loadEl) loadEl.style.display = 'none';
 
-    // Ascolta iscrizioni
-    onSnapshot(collection(db, 'iscrizioni'), snap => {
-      allIscrizioni = [];
-      snap.forEach(d => allIscrizioni.push({ id: d.id, ...d.data() }));
-      allIscrizioni.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+      // Aggiorna KPI e Tabella
+      window.vendutiCount = numeriVendutiSet.size;
       updateKPI();
       renderTable();
     });
   }
 
   function updateKPI() {
-    const venduti = Object.values(numeriState).filter(v => !v).length;
-    // Liberi = totale MAX meno venduti (non dipende da quanti doc sono arrivati)
+    const venduti = window.vendutiCount || 0;
     const liberi = MAX - venduti;
-    const incasso = allIscrizioni.reduce((s, i) => s + (i.importo || 0), 0);
+    const incasso = allIscrizioni.reduce((s, i) => s + (Number(i.importo) || 0), 0);
+    
     document.getElementById('kpi-iscrizioni').textContent = allIscrizioni.length;
     document.getElementById('kpi-incasso').textContent = `${incasso}€`;
     document.getElementById('kpi-venduti').textContent = venduti;
