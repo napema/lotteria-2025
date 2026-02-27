@@ -187,7 +187,7 @@
       <div class="section-title">Scegli i tuoi Numeri</div>
       <div class="picker-top">
         <div class="number-input-wrap">
-          <input type="number" id="num-input" min="1" max="500" placeholder="Digita un numero tra 1 e 500" autocomplete="off">
+          <input type="number" id="num-input" min="1" max="5000" placeholder="Digita un numero tra 1 e 5000" autocomplete="off">
           <button class="add-btn" id="add-btn" title="Aggiungi">+</button>
         </div>
         <button class="lucky-btn" id="lucky-btn" disabled>🎲 Pesca per me</button>
@@ -205,7 +205,6 @@
       <div class="logic-msg" id="logic-error"></div>
     </div>
 
-    <!-- Honeypot: invisibile agli umani, i bot lo compilano e vengono bloccati -->
     <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
       <label for="hp_website">Non compilare questo campo</label>
       <input type="text" id="hp_website" name="website" tabindex="-1" autocomplete="off">
@@ -226,9 +225,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, collection, writeBatch, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, collection, writeBatch, onSnapshot, runTransaction, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const MAX = 5000;
+  // ATTENZIONE EMA: Questi dati andranno messi al sicuro in una Cloud Function presto.
   const TG_TOKEN = "8636580728:AAEiBCkhToEzLE6dVrshaA7a4qxf_WkzJbg";
   const TG_CHAT  = "1949250119";
 
@@ -266,7 +266,6 @@
     }
   });
 
-  // Drag & drop
   uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
   uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
   uploadArea.addEventListener('drop', e => {
@@ -278,21 +277,19 @@
     }
   });
 
-  // ── Init numeri (background, non blocca UI) ──────────────────────────
+  // ── Init numeri ──────────────────────────────────────────────────────
   async function initNumbers() {
     const statusEl = document.getElementById('db-status');
     try {
-      // Mostra subito connesso e abilita il form
       statusEl.textContent = '✓ Database connesso';
       statusEl.className = 'db-status ok';
       dbReady = true;
       document.getElementById('submit-btn').disabled = false;
       document.getElementById('submit-btn').textContent = '✦ Conferma Partecipazione';
 
-      // Controlla in background se i numeri esistono già
+      // Setup iniziale (se DB è vuoto)
       const testDoc = await getDoc(doc(db, 'numeri', '1'));
       if (!testDoc.exists()) {
-        // Prima configurazione silenziosa in background
         for (let s = 1; s <= MAX; s += 499) {
           const batch = writeBatch(db);
           for (let i = s; i < s + 499 && i <= MAX; i++) {
@@ -310,18 +307,33 @@
     }
   }
 
-  // ── Listener realtime ────────────────────────────────────────────────
-  onSnapshot(collection(db, 'numeri'), snap => {
-    snap.forEach(d => {
-      const data = d.data();
-      if (data.disponibile) disponibili.add(data.numero);
-      else {
-        disponibili.delete(data.numero);
-        if (selected.has(data.numero)) { selected.delete(data.numero); renderChips(); }
+  // ── Listener realtime OTTIMIZZATO (La modifica chiave) ─────────────────
+  // Ora chiediamo a Firebase SOLO i biglietti già venduti, risparmiando migliaia di letture.
+  const q = query(collection(db, 'numeri'), where('disponibile', '==', false));
+  onSnapshot(q, snap => {
+    const vendutiSet = new Set();
+    snap.forEach(d => vendutiSet.add(d.data().numero));
+
+    // Ricostruiamo la lista dei liberi localmente
+    disponibili.clear();
+    for (let i = 1; i <= MAX; i++) {
+      if (!vendutiSet.has(i)) disponibili.add(i);
+    }
+
+    document.getElementById('stat-liberi').textContent = disponibili.size.toLocaleString('it-IT');
+    document.getElementById('stat-venduti').textContent = vendutiSet.size.toLocaleString('it-IT');
+
+    // Controllo di sicurezza in tempo reale: se qualcuno compra un numero 
+    // che l'utente sta per acquistare, lo togliamo dal carrello avvisandolo.
+    let changed = false;
+    for (let s of selected) {
+      if (vendutiSet.has(s)) {
+        selected.delete(s);
+        changed = true;
+        showError(`Attenzione: il numero ${s} è appena stato acquistato da un altro utente! Scegline un altro.`);
       }
-    });
-    document.getElementById('stat-liberi').textContent = disponibili.size;
-    document.getElementById('stat-venduti').textContent = MAX - disponibili.size;
+    }
+    if (changed) renderChips();
   });
 
   // ── Pacchetto ────────────────────────────────────────────────────────
@@ -419,7 +431,6 @@
     const form = new FormData();
     form.append('chat_id', TG_CHAT);
     form.append('caption', caption);
-    // Usa sendPhoto per immagini, sendDocument per PDF
     const isImage = file.type.startsWith('image/');
     const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
     form.append(isImage ? 'photo' : 'document', file);
@@ -431,14 +442,11 @@
 
   // ── Anti-spam ────────────────────────────────────────────────────────
   const SPAM_KEY = 'lotteria_submitted';
-  const MAX_SUBMITS_PER_IP = 1; // max iscrizioni per sessione browser
 
   function checkSpam() {
-    // 1. Honeypot check
     if (document.getElementById('hp_website').value !== '') {
       return 'Bot rilevato. Iscrizione bloccata.';
     }
-    // 2. Cooldown: ha già inviato in questa sessione/giorno?
     const lastSubmit = localStorage.getItem(SPAM_KEY);
     if (lastSubmit) {
       const ore = (Date.now() - parseInt(lastSubmit)) / 1000 / 3600;
@@ -447,7 +455,7 @@
         return `Hai già completato un\'iscrizione. Potrai iscriverti di nuovo tra ${rimanenti} ora${rimanenti > 1 ? 'e' : ''}.`;
       }
     }
-    return null; // ok, nessuno spam
+    return null;
   }
 
   function markSubmitted() {
@@ -459,7 +467,6 @@
     if (!dbReady) return;
     hideError();
 
-    // Anti-spam check
     const spamMsg = checkSpam();
     if (spamMsg) { showError(spamMsg); return; }
 
@@ -494,9 +501,7 @@
     const importo = currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15;
 
     try {
-      // 1. Prenota numeri su Firestore
       await runTransaction(db, async (tx) => {
-        // Rate limit server-side: controlla quante iscrizioni ha questo telefono
         const telRef = doc(db, 'rate_limit', telefono.replace(/\D/g,''));
         const telSnap = await tx.get(telRef);
         if (telSnap.exists() && telSnap.data().count >= 1) {
@@ -516,11 +521,9 @@
           nome, cognome, telefono, pacchetto: currentPackage,
           numeri: numeriScelti, importo, timestamp, ricevutaCaricata: true
         });
-        // Salva rate limit per telefono
         tx.set(doc(db, 'rate_limit', telefono.replace(/\D/g,'')), { count: 1, timestamp });
       });
 
-      // 2. Invia notifica Telegram con ricevuta
       btn.textContent = '⏳ Invio ricevuta...';
       const file = fileEl.files[0];
       const caption = `🎟️ NUOVA ISCRIZIONE\n\n👤 ${nome} ${cognome}\n📞 ${telefono}\n📦 Pacchetto: ${currentPackage} numero${currentPackage > 1 ? 'i' : ''} — ${importo}€\n🔢 Numeri: ${numeriScelti.join(', ')}\n📅 ${new Date(timestamp).toLocaleString('it-IT')}`;
@@ -528,11 +531,9 @@
       try {
         await tgSendFile(file, caption);
       } catch(e) {
-        // Se il file fallisce, manda almeno il testo
         await tgSendMessage(caption + '\n\n⚠️ Ricevuta non allegata — verifica manualmente.');
       }
 
-      // 3. Successo
       markSubmitted();
       document.getElementById('form-container').style.display = 'none';
       document.getElementById('success-msg').style.display = 'block';
