@@ -7,50 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --gold: #C9A84C;
-    --gold-light: #F0D080;
-    --dark: #0E0E0E;
-    --card: #161616;
-    --border: #2a2a2a;
-    --text: #E8E8E0;
-    --muted: #888;
-    --error: #E05555;
-    --success: #4CAF79;
+    --gold: #C9A84C; --gold-light: #F0D080;
+    --dark: #0E0E0E; --card: #161616; --border: #2a2a2a;
+    --text: #E8E8E0; --muted: #888; --error: #E05555; --success: #4CAF79;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    padding: 40px 16px 80px;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%);
-    pointer-events: none;
-  }
+  body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 40px 16px 80px; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%); pointer-events: none; }
   .wrapper { max-width: 780px; margin: 0 auto; }
   header { text-align: center; padding: 48px 0 40px; }
-  .badge {
-    display: inline-block;
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--gold); border: 1px solid var(--gold);
-    padding: 5px 16px; border-radius: 2px; margin-bottom: 20px;
-  }
-  h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem, 6vw, 3.8rem);
-    font-weight: 900; line-height: 1.05; color: #fff; margin-bottom: 12px;
-  }
+  .badge { display: inline-block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold); padding: 5px 16px; border-radius: 2px; margin-bottom: 20px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 900; line-height: 1.05; color: #fff; margin-bottom: 12px; }
   h1 span { color: var(--gold); }
-  .subtitle { color: var(--muted); font-size: 15px; font-weight: 300; max-width: 420px; margin: 0 auto; line-height: 1.6; }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem; color: var(--gold-light); margin-bottom: 20px;
-    display: flex; align-items: center; gap: 10px;
-  }
+  .subtitle { color: var(--muted); font-size: 15px; font-weight: 300; max-width: 440px; margin: 0 auto; line-height: 1.6; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--gold-light); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
   .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 28px; margin-bottom: 20px; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -58,74 +28,87 @@
   .field { display: flex; flex-direction: column; gap: 7px; }
   label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 500; }
   label .req { color: var(--gold); margin-left: 3px; }
-  input[type=text], input[type=tel], input[type=file] {
+  input[type=text], input[type=tel], input[type=number], input[type=file] {
     background: #1e1e1e; border: 1px solid var(--border); border-radius: 5px;
     color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
     padding: 11px 14px; outline: none; transition: border-color .2s; width: 100%;
   }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
   input[type=file] { cursor: pointer; padding: 10px 14px; }
-  input[type=file]::file-selector-button {
-    background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px;
-    color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px;
-    margin-right: 12px; padding: 5px 12px;
-  }
+  input[type=file]::file-selector-button { background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px; margin-right: 12px; padding: 5px 12px; }
   input:focus { border-color: var(--gold); }
   input.invalid { border-color: var(--error) !important; }
-  .bank-box {
-    background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold);
-    border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb;
-  }
+  .bank-box { background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb; }
   .bank-box strong { color: var(--gold-light); font-size: 12px; letter-spacing: .5px; }
+
+  /* PACKAGES */
   .packages { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
   @media(max-width:500px){ .packages { grid-template-columns: 1fr; } }
   .pkg-option { display: none; }
-  .pkg-label {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    border: 2px solid var(--border); border-radius: 8px; cursor: pointer;
-    padding: 18px 10px; text-align: center; transition: all .2s;
-  }
+  .pkg-label { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; padding: 18px 10px; text-align: center; transition: all .2s; }
   .pkg-label:hover { border-color: var(--gold); }
   .pkg-option:checked + .pkg-label { border-color: var(--gold); background: rgba(201,168,76,0.08); }
   .pkg-nums { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
   .pkg-desc { font-size: 12px; color: var(--muted); }
   .pkg-price { font-size: 14px; color: var(--gold-light); font-weight: 500; }
-  .grid-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px; color: var(--muted); }
-  #selection-counter { background: var(--gold); color: #000; font-weight: 700; padding: 3px 10px; border-radius: 12px; font-size: 12px; }
-  .number-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
-  @media(max-width:480px){ .number-grid { grid-template-columns: repeat(6,1fr); gap:5px; } }
-  .num-btn {
-    aspect-ratio: 1; background: #1e1e1e; border: 1px solid #333; border-radius: 5px;
-    color: var(--text); cursor: pointer; font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 500; transition: all .15s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .num-btn:hover:not(.taken):not(.selected) { border-color: var(--gold); color: var(--gold); }
-  .num-btn.selected { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; transform: scale(1.05); }
-  .num-btn.taken { background: #111; border-color: #1e1e1e; color: #333; cursor: not-allowed; text-decoration: line-through; }
-  .num-btn.loading { opacity: .4; cursor: wait; }
-  .logic-msg {
-    display: none; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.35);
-    border-radius: 5px; color: var(--error); font-size: 13px; margin-top: 14px; padding: 10px 14px;
-  }
+
+  /* STATS */
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .stat-dot.green { background: var(--success); }
+  .stat-dot.red { background: var(--error); }
+  .stat-val { font-weight: 600; color: var(--text); }
+
+  /* PICKER */
+  .picker-top { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 6px; }
+  .number-input-wrap { flex: 1; min-width: 180px; position: relative; }
+  .number-input-wrap input { padding-right: 46px; }
+  .add-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: var(--gold); border: none; border-radius: 4px; color: #000; cursor: pointer; font-size: 20px; font-weight: 700; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: opacity .15s; }
+  .add-btn:hover { opacity: .8; }
+  .input-hint { font-size: 11px; color: var(--muted); margin-top: 5px; min-height: 16px; transition: color .2s; }
+  .input-hint.ok { color: var(--success); }
+  .input-hint.err { color: var(--error); }
+  .lucky-btn { background: transparent; border: 1px solid var(--gold); border-radius: 6px; color: var(--gold); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 11px 16px; transition: all .2s; white-space: nowrap; display: flex; align-items: center; gap: 7px; }
+  .lucky-btn:hover:not(:disabled) { background: var(--gold); color: #000; }
+  .lucky-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* CHIPS */
+  .selected-header { display: flex; justify-content: space-between; align-items: center; margin: 18px 0 10px; }
+  .selected-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .selected-count { background: var(--gold); color: #000; font-weight: 700; padding: 3px 10px; border-radius: 12px; font-size: 12px; }
+  .chips-area { min-height: 52px; background: #111; border: 1px dashed var(--border); border-radius: 6px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .chips-area.empty::after { content: 'Nessun numero selezionato ancora'; color: #444; font-size: 13px; font-style: italic; }
+  .chip { background: rgba(201,168,76,0.15); border: 1px solid var(--gold); border-radius: 6px; color: var(--gold-light); font-weight: 700; font-size: 13px; padding: 5px 10px; display: flex; align-items: center; gap: 6px; animation: popIn .15s ease; }
+  @keyframes popIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+  .chip-remove { background: none; border: none; color: #888; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; transition: color .15s; }
+  .chip-remove:hover { color: var(--error); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-top: 14px; }
+  .progress-label { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .progress-label span { color: var(--gold); font-weight: 600; }
+  .progress-bar-bg { background: #1e1e1e; border-radius: 4px; height: 6px; overflow: hidden; }
+  .progress-bar-fill { background: linear-gradient(to right, var(--gold), var(--gold-light)); height: 100%; border-radius: 4px; transition: width .3s ease; width: 0%; }
+
+  /* MESSAGES */
+  .logic-msg { display: none; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.35); border-radius: 5px; color: var(--error); font-size: 13px; margin-top: 14px; padding: 10px 14px; }
   .logic-msg.visible { display: block; }
-  .submit-btn {
-    width: 100%; background: var(--gold); border: none; border-radius: 6px; color: #000;
-    cursor: pointer; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700;
-    letter-spacing: 1px; padding: 18px; transition: opacity .2s, transform .1s; margin-top: 8px;
-  }
-  .submit-btn:hover { opacity: .88; }
+
+  /* SUBMIT */
+  .submit-btn { width: 100%; background: var(--gold); border: none; border-radius: 6px; color: #000; cursor: pointer; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; padding: 18px; transition: opacity .2s, transform .1s; margin-top: 8px; }
+  .submit-btn:hover:not(:disabled) { opacity: .88; }
   .submit-btn:active { transform: scale(.99); }
   .submit-btn:disabled { opacity: .35; cursor: not-allowed; }
-  #success-msg { display: none; text-align: center; padding: 40px 20px; }
-  #success-msg .tick { font-size: 3rem; margin-bottom: 12px; }
-  #success-msg h2 { font-family: 'Playfair Display', serif; color: var(--success); margin-bottom: 8px; }
-  #success-msg p { color: var(--muted); font-size: 14px; }
-  .legend { display: flex; gap: 20px; font-size: 12px; color: var(--muted); margin-top: 14px; flex-wrap: wrap; }
-  .legend span { display: flex; align-items: center; gap: 6px; }
-  .dot { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
-  .dot-free { background: #1e1e1e; border: 1px solid #555; }
-  .dot-sel { background: var(--gold); }
-  .dot-taken { background: #111; border: 1px solid #222; }
+
+  /* SUCCESS */
+  #success-msg { display: none; text-align: center; padding: 60px 20px; }
+  #success-msg .tick { font-size: 3.5rem; margin-bottom: 16px; }
+  #success-msg h2 { font-family: 'Playfair Display', serif; color: var(--success); font-size: 2rem; margin-bottom: 10px; }
+  #success-msg p { color: var(--muted); font-size: 15px; line-height: 1.7; }
+  .success-nums { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+  .success-num { background: rgba(201,168,76,0.15); border: 1px solid var(--gold); border-radius: 6px; color: var(--gold-light); font-weight: 700; font-size: 18px; padding: 10px 16px; }
   .db-status { font-size: 11px; color: var(--muted); text-align: center; padding: 8px; }
   .db-status.ok { color: var(--success); }
   .db-status.err { color: var(--error); }
@@ -137,146 +120,127 @@
   <header>
     <div class="badge">Lotteria a Esaurimento 2025</div>
     <h1>Scegli il <span>tuo numero</span><br>fortunato</h1>
-    <p class="subtitle">Partecipa all'estrazione: ogni numero è disponibile una sola volta. Completa il modulo e invia la ricevuta di pagamento.</p>
+    <p class="subtitle">Ogni numero è disponibile una sola volta. Digita quello che vuoi o lascia che la fortuna scelga per te.</p>
     <p class="db-status" id="db-status">⏳ Connessione al database...</p>
   </header>
 
   <div id="form-container">
 
+    <div class="stats-bar">
+      <div class="stat-pill"><span class="stat-dot green"></span>Liberi: <span class="stat-val" id="stat-liberi">—</span></div>
+      <div class="stat-pill"><span class="stat-dot red"></span>Venduti: <span class="stat-val" id="stat-venduti">—</span></div>
+      <div class="stat-pill">🎟️ Totale: <span class="stat-val">500</span></div>
+    </div>
+
     <div class="card">
       <div class="section-title">Dati Personali</div>
       <div class="row" style="margin-bottom:16px">
-        <div class="field">
-          <label>Nome <span class="req">*</span></label>
-          <input type="text" id="nome" placeholder="Mario" required>
-        </div>
-        <div class="field">
-          <label>Cognome <span class="req">*</span></label>
-          <input type="text" id="cognome" placeholder="Rossi" required>
-        </div>
+        <div class="field"><label>Nome <span class="req">*</span></label><input type="text" id="nome" placeholder="Mario" required></div>
+        <div class="field"><label>Cognome <span class="req">*</span></label><input type="text" id="cognome" placeholder="Rossi" required></div>
       </div>
-      <div class="field">
-        <label>Telefono <span class="req">*</span></label>
-        <input type="tel" id="telefono" placeholder="+39 333 000 0000" required>
-      </div>
+      <div class="field"><label>Telefono <span class="req">*</span></label><input type="tel" id="telefono" placeholder="+39 333 000 0000" required></div>
     </div>
 
     <div class="card">
       <div class="section-title">Coordinate Bancarie</div>
       <div class="bank-box">
-        <strong>Intestatario</strong><br>
-        Associazione Lucky Star ETS<br><br>
-        <strong>IBAN</strong><br>
-        IT60 X054 2811 1010 0000 0123 456<br><br>
-        <strong>Banca</strong><br>
-        Unicredit S.p.A. — Filiale di Roma Centro<br><br>
-        <strong>Causale</strong><br>
-        Lotteria 2025 — [Nome Cognome]
+        <strong>Intestatario</strong><br>Associazione Lucky Star ETS<br><br>
+        <strong>IBAN</strong><br>IT60 X054 2811 1010 0000 0123 456<br><br>
+        <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br><br>
+        <strong>Causale</strong><br>Lotteria 2025 — [Nome Cognome]
       </div>
     </div>
 
     <div class="card">
       <div class="section-title">Ricevuta di Pagamento</div>
-      <div class="field">
-        <label>Carica la ricevuta <span class="req">*</span></label>
-        <input type="file" id="ricevuta" accept="image/*,.pdf" required>
-      </div>
+      <div class="field"><label>Carica la ricevuta <span class="req">*</span></label><input type="file" id="ricevuta" accept="image/*,.pdf" required></div>
     </div>
 
     <div class="card">
       <div class="section-title">Scegli il Pacchetto</div>
       <div class="packages">
-        <div>
-          <input type="radio" class="pkg-option" name="pacchetto" id="pkg1" value="1">
-          <label class="pkg-label" for="pkg1">
-            <span class="pkg-nums">1</span>
-            <span class="pkg-desc">numero</span>
-            <span class="pkg-price">5 €</span>
-          </label>
-        </div>
-        <div>
-          <input type="radio" class="pkg-option" name="pacchetto" id="pkg3" value="3">
-          <label class="pkg-label" for="pkg3">
-            <span class="pkg-nums">3</span>
-            <span class="pkg-desc">numeri</span>
-            <span class="pkg-price">10 €</span>
-          </label>
-        </div>
-        <div>
-          <input type="radio" class="pkg-option" name="pacchetto" id="pkg5" value="5">
-          <label class="pkg-label" for="pkg5">
-            <span class="pkg-nums">5</span>
-            <span class="pkg-desc">numeri</span>
-            <span class="pkg-price">15 €</span>
-          </label>
-        </div>
+        <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg1" value="1"><label class="pkg-label" for="pkg1"><span class="pkg-nums">1</span><span class="pkg-desc">numero</span><span class="pkg-price">5 €</span></label></div>
+        <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg3" value="3"><label class="pkg-label" for="pkg3"><span class="pkg-nums">3</span><span class="pkg-desc">numeri</span><span class="pkg-price">10 €</span></label></div>
+        <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg5" value="5"><label class="pkg-label" for="pkg5"><span class="pkg-nums">5</span><span class="pkg-desc">numeri</span><span class="pkg-price">15 €</span></label></div>
       </div>
     </div>
 
     <div class="card">
-      <div class="section-title">Lista Numeri (1–90)</div>
-      <div class="grid-info">
-        <span>Seleziona i numeri in base al pacchetto</span>
-        <span id="selection-counter">0 selezionati</span>
+      <div class="section-title">Scegli i tuoi Numeri</div>
+
+      <div class="picker-top">
+        <div class="number-input-wrap">
+          <input type="number" id="num-input" min="1" max="500" placeholder="Digita un numero tra 1 e 500" autocomplete="off">
+          <button class="add-btn" id="add-btn" title="Aggiungi">+</button>
+        </div>
+        <button class="lucky-btn" id="lucky-btn" disabled>🎲 Pesca per me</button>
       </div>
-      <div class="number-grid" id="number-grid"></div>
-      <div class="legend">
-        <span><span class="dot dot-free"></span> Disponibile</span>
-        <span><span class="dot dot-sel"></span> Selezionato</span>
-        <span><span class="dot dot-taken"></span> Non disponibile</span>
+      <div class="input-hint" id="input-hint">Seleziona prima un pacchetto</div>
+
+      <div class="selected-header">
+        <span class="selected-label">Numeri selezionati</span>
+        <span class="selected-count" id="selected-count">0 / ?</span>
       </div>
+      <div class="chips-area empty" id="chips-area"></div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Completamento pacchetto</span><span id="progress-pct">0%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      </div>
+
       <div class="logic-msg" id="logic-error"></div>
     </div>
 
-    <button class="submit-btn" id="submit-btn" disabled>⏳ Caricamento numeri...</button>
-
+    <button class="submit-btn" id="submit-btn" disabled>⏳ Caricamento...</button>
   </div>
 
   <div id="success-msg">
     <div class="tick">🎟️</div>
-    <h2>Iscrizione Completata!</h2>
-    <p id="success-detail"></p>
-    <p style="margin-top:8px">Riceverai una conferma via SMS al numero indicato.</p>
+    <h2>Sei dentro!</h2>
+    <p id="success-name"></p>
+    <div class="success-nums" id="success-nums"></div>
+    <p>Riceverai una conferma via SMS.<br>Buona fortuna! 🍀</p>
   </div>
 
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, writeBatch, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, collection, writeBatch, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // ── Firebase config ──────────────────────────────────────────────────
+  const MAX = 500;
   const firebaseConfig = {
     apiKey: "AIzaSyDQWMkwOM7RO4hVK5-XqeBKGSyLgOS_feY",
     authDomain: "lotteria-primavera-205.firebaseapp.com",
     projectId: "lotteria-primavera-205",
     storageBucket: "lotteria-primavera-205.firebasestorage.app",
     messagingSenderId: "539303949492",
-    appId: "1:539303949492:web:6b0afe5de189b1444153e1",
-    measurementId: "G-QL0LZKW31Y"
+    appId: "1:539303949492:web:6b0afe5de189b1444153e1"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ── State ────────────────────────────────────────────────────────────
+  const disponibili = new Set();
   const selected = new Set();
   let currentPackage = 0;
   let dbReady = false;
 
-  // ── Init: popola i numeri 1-90 se non esistono ────────────────────
+  // ── Init 500 numeri ──────────────────────────────────────────────────
   async function initNumbers() {
     const statusEl = document.getElementById('db-status');
     try {
       const testDoc = await getDoc(doc(db, 'numeri', '1'));
       if (!testDoc.exists()) {
-        statusEl.textContent = '⏳ Prima configurazione numeri...';
-        const batch = writeBatch(db);
-        for (let i = 1; i <= 90; i++) {
-          batch.set(doc(db, 'numeri', String(i)), { numero: i, disponibile: true, prenotatoDa: null });
+        statusEl.textContent = '⏳ Prima configurazione (qualche secondo)...';
+        // Firebase batch max 500 ops — usiamo 2 batch da 250
+        for (let batch_start = 1; batch_start <= MAX; batch_start += 250) {
+          const batch = writeBatch(db);
+          for (let i = batch_start; i < batch_start + 250 && i <= MAX; i++) {
+            batch.set(doc(db, 'numeri', String(i)), { numero: i, disponibile: true, prenotatoDa: null });
+          }
+          await batch.commit();
         }
-        await batch.commit();
       }
       statusEl.textContent = '✓ Database connesso';
       statusEl.className = 'db-status ok';
@@ -284,135 +248,152 @@
       document.getElementById('submit-btn').disabled = false;
       document.getElementById('submit-btn').textContent = '✦ Conferma Partecipazione';
     } catch(e) {
-      statusEl.textContent = '✗ Errore connessione database';
+      statusEl.textContent = '✗ Errore connessione';
       statusEl.className = 'db-status err';
       console.error(e);
     }
   }
 
-  // ── Build grid ───────────────────────────────────────────────────────
-  const grid = document.getElementById('number-grid');
-  for (let i = 1; i <= 90; i++) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = i;
-    btn.dataset.num = i;
-    btn.classList.add('num-btn', 'loading');
-    btn.addEventListener('click', () => toggleNumber(i, btn));
-    grid.appendChild(btn);
-  }
-
-  // ── Ascolta i numeri in tempo reale ──────────────────────────────────
-  onSnapshot(collection(db, 'numeri'), (snapshot) => {
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      const num = data.numero;
-      const btn = document.querySelector(`[data-num="${num}"]`);
-      if (!btn) return;
-      btn.classList.remove('loading');
-      if (!data.disponibile) {
-        btn.classList.add('taken');
-        btn.classList.remove('selected');
-        selected.delete(num);
-      } else {
-        btn.classList.remove('taken');
+  // ── Listener realtime ────────────────────────────────────────────────
+  onSnapshot(collection(db, 'numeri'), snap => {
+    snap.forEach(d => {
+      const data = d.data();
+      if (data.disponibile) disponibili.add(data.numero);
+      else {
+        disponibili.delete(data.numero);
+        if (selected.has(data.numero)) { selected.delete(data.numero); renderChips(); }
       }
     });
-    updateCounter();
-    validateLogic();
+    document.getElementById('stat-liberi').textContent = disponibili.size;
+    document.getElementById('stat-venduti').textContent = MAX - disponibili.size;
   });
-
-  // ── Toggle numero ────────────────────────────────────────────────────
-  function toggleNumber(num, btn) {
-    if (!dbReady) return;
-    if (btn.classList.contains('taken') || btn.classList.contains('loading')) return;
-    if (selected.has(num)) {
-      selected.delete(num);
-      btn.classList.remove('selected');
-    } else {
-      if (currentPackage === 0) {
-        showLogicError('Seleziona prima un pacchetto.');
-        return;
-      }
-      if (selected.size >= currentPackage) {
-        showLogicError(`Il pacchetto scelto consente solo <strong>${currentPackage} numero${currentPackage > 1 ? 'i' : ''}</strong>. Deseleziona prima un numero.`);
-        return;
-      }
-      selected.add(num);
-      btn.classList.add('selected');
-    }
-    updateCounter();
-    validateLogic();
-  }
 
   // ── Pacchetto ────────────────────────────────────────────────────────
   document.querySelectorAll('.pkg-option').forEach(radio => {
     radio.addEventListener('change', () => {
       currentPackage = parseInt(radio.value);
-      if (selected.size > currentPackage) {
-        const toRemove = [...selected].slice(currentPackage);
-        toRemove.forEach(n => {
-          selected.delete(n);
-          document.querySelector(`[data-num="${n}"]`).classList.remove('selected');
-        });
-      }
-      updateCounter();
-      validateLogic();
+      while (selected.size > currentPackage) selected.delete([...selected][0]);
+      renderChips();
+      updateHint();
+      hideError();
+      document.getElementById('lucky-btn').disabled = false;
     });
   });
 
-  function updateCounter() {
-    document.getElementById('selection-counter').textContent = `${selected.size} selezionati`;
-  }
+  // ── Input ────────────────────────────────────────────────────────────
+  const numInput = document.getElementById('num-input');
+  numInput.addEventListener('input', updateHint);
+  numInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryAdd(); });
+  document.getElementById('add-btn').addEventListener('click', tryAdd);
 
-  // ── Validazione logica condizionale ──────────────────────────────────
-  function validateLogic() {
-    hideLogicError();
-    if (currentPackage === 0 || selected.size === 0) return;
-    if (selected.size !== currentPackage) {
-      const diff = currentPackage - selected.size;
-      if (diff > 0) showLogicError(`Hai selezionato <strong>${selected.size}</strong> numero${selected.size !== 1 ? 'i' : ''}. Ne mancano ancora <strong>${diff}</strong>.`);
+  function updateHint() {
+    const hint = document.getElementById('input-hint');
+    const val = parseInt(numInput.value);
+    if (!numInput.value) {
+      hint.textContent = currentPackage === 0 ? 'Seleziona prima un pacchetto' : `Digita un numero da 1 a ${MAX}`;
+      hint.className = 'input-hint'; return;
     }
+    if (isNaN(val) || val < 1 || val > MAX) {
+      hint.textContent = `⚠ Numero non valido — scegli tra 1 e ${MAX}`;
+      hint.className = 'input-hint err'; return;
+    }
+    if (selected.has(val)) {
+      hint.textContent = `✓ Numero ${val} già selezionato da te`;
+      hint.className = 'input-hint ok'; return;
+    }
+    if (dbReady && !disponibili.has(val)) {
+      hint.textContent = `✗ Numero ${val} già prenotato da qualcun altro`;
+      hint.className = 'input-hint err'; return;
+    }
+    hint.textContent = `✓ Numero ${val} disponibile — premi + per aggiungerlo`;
+    hint.className = 'input-hint ok';
   }
 
-  function showLogicError(msg) {
+  function tryAdd() {
+    hideError();
+    const val = parseInt(numInput.value);
+    if (currentPackage === 0) { showError('Seleziona prima un pacchetto.'); return; }
+    if (isNaN(val) || val < 1 || val > MAX) { showError(`Inserisci un numero valido tra 1 e ${MAX}.`); return; }
+    if (selected.has(val)) { showError(`Il numero ${val} è già nella tua selezione.`); return; }
+    if (dbReady && !disponibili.has(val)) { showError(`Il numero ${val} è già stato prenotato.`); return; }
+    if (selected.size >= currentPackage) { showError(`Hai già selezionato ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}. Rimuovine uno prima di aggiungerne un altro.`); return; }
+    selected.add(val);
+    numInput.value = '';
+    document.getElementById('input-hint').textContent = '';
+    document.getElementById('input-hint').className = 'input-hint';
+    renderChips();
+  }
+
+  // ── Pesca casuale ────────────────────────────────────────────────────
+  document.getElementById('lucky-btn').addEventListener('click', () => {
+    hideError();
+    if (currentPackage === 0) { showError('Seleziona prima un pacchetto.'); return; }
+    const quanti = currentPackage - selected.size;
+    if (quanti <= 0) { showError('Hai già tutti i numeri del pacchetto!'); return; }
+    const pool = [...disponibili].filter(n => !selected.has(n));
+    if (pool.length < quanti) { showError('Non ci sono abbastanza numeri disponibili.'); return; }
+    // Shuffle e prendi i primi N
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    pool.slice(0, quanti).forEach(n => selected.add(n));
+    renderChips();
+  });
+
+  // ── Render chips + progress ──────────────────────────────────────────
+  function renderChips() {
+    const area = document.getElementById('chips-area');
+    area.innerHTML = '';
+    if (selected.size === 0) {
+      area.classList.add('empty');
+    } else {
+      area.classList.remove('empty');
+      [...selected].sort((a,b) => a-b).forEach(num => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `<span>${num}</span><button class="chip-remove" data-n="${num}" title="Rimuovi">×</button>`;
+        chip.querySelector('.chip-remove').addEventListener('click', () => {
+          selected.delete(num); renderChips(); hideError();
+        });
+        area.appendChild(chip);
+      });
+    }
+    const pct = currentPackage > 0 ? Math.round(selected.size / currentPackage * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('selected-count').textContent = `${selected.size} / ${currentPackage || '?'}`;
+  }
+
+  function showError(msg) {
     const el = document.getElementById('logic-error');
     el.innerHTML = '⚠️ ' + msg;
     el.classList.add('visible');
   }
-
-  function hideLogicError() {
-    document.getElementById('logic-error').classList.remove('visible');
-  }
+  function hideError() { document.getElementById('logic-error').classList.remove('visible'); }
 
   // ── Submit ───────────────────────────────────────────────────────────
   document.getElementById('submit-btn').addEventListener('click', async () => {
     if (!dbReady) return;
-
+    hideError();
     let valid = true;
     ['nome','cognome','telefono'].forEach(id => {
       const el = document.getElementById(id);
       if (!el.value.trim()) { el.classList.add('invalid'); valid = false; }
       else el.classList.remove('invalid');
     });
-
     if (!document.getElementById('ricevuta').files.length) {
-      document.getElementById('ricevuta').classList.add('invalid');
-      valid = false;
-    } else {
-      document.getElementById('ricevuta').classList.remove('invalid');
-    }
-
-    if (!currentPackage) { showLogicError('Seleziona un pacchetto prima di procedere.'); valid = false; }
+      document.getElementById('ricevuta').classList.add('invalid'); valid = false;
+    } else document.getElementById('ricevuta').classList.remove('invalid');
+    if (!currentPackage) { showError('Seleziona un pacchetto.'); valid = false; }
     if (currentPackage && selected.size !== currentPackage) {
-      showLogicError(`Devi selezionare esattamente <strong>${currentPackage}</strong> numero${currentPackage > 1 ? 'i' : ''}.`);
+      showError(`Devi selezionare esattamente <strong>${currentPackage}</strong> numero${currentPackage > 1 ? 'i' : ''}. Ne hai ${selected.size}.`);
       valid = false;
     }
     if (!valid) return;
 
     const btn = document.getElementById('submit-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Invio in corso...';
+    btn.disabled = true; btn.textContent = '⏳ Invio in corso...';
 
     const nome = document.getElementById('nome').value.trim();
     const cognome = document.getElementById('cognome').value.trim();
@@ -421,52 +402,41 @@
     const timestamp = new Date().toISOString();
 
     try {
-      // Transazione atomica: prenota tutti i numeri o fallisce
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (tx) => {
         for (const num of numeriScelti) {
-          const numRef = doc(db, 'numeri', String(num));
-          const numDoc = await transaction.get(numRef);
-          if (!numDoc.exists() || !numDoc.data().disponibile) {
-            throw new Error(`Il numero ${num} è stato appena prenotato da qualcun altro!`);
-          }
+          const ref = doc(db, 'numeri', String(num));
+          const snap = await tx.get(ref);
+          if (!snap.exists() || !snap.data().disponibile)
+            throw new Error(`Il numero ${num} è appena stato prenotato da qualcun altro. Rimuovilo e scegline un altro.`);
         }
-        // Tutti disponibili: li prenota
         for (const num of numeriScelti) {
-          const numRef = doc(db, 'numeri', String(num));
-          transaction.update(numRef, { disponibile: false, prenotatoDa: `${nome} ${cognome}`, prenotatoIl: timestamp });
+          tx.update(doc(db, 'numeri', String(num)), { disponibile: false, prenotatoDa: `${nome} ${cognome}`, prenotatoIl: timestamp });
         }
-        // Salva iscrizione
-        const iscrizioneRef = doc(collection(db, 'iscrizioni'));
-        transaction.set(iscrizioneRef, {
-          nome, cognome, telefono,
-          pacchetto: currentPackage,
-          numeri: numeriScelti,
+        tx.set(doc(collection(db, 'iscrizioni')), {
+          nome, cognome, telefono, pacchetto: currentPackage, numeri: numeriScelti,
           importo: currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15,
-          timestamp,
-          ricevutaCaricata: true
+          timestamp, ricevutaCaricata: true
         });
       });
 
-      // Successo
       document.getElementById('form-container').style.display = 'none';
-      const successEl = document.getElementById('success-msg');
-      successEl.style.display = 'block';
-      document.getElementById('success-detail').textContent =
-        `${nome} ${cognome} — Numeri: ${numeriScelti.join(', ')} — Pacchetto ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}`;
-
+      document.getElementById('success-msg').style.display = 'block';
+      document.getElementById('success-name').textContent = `${nome} ${cognome} — Pacchetto ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}`;
+      const numsEl = document.getElementById('success-nums');
+      numeriScelti.forEach(n => {
+        const el = document.createElement('div');
+        el.className = 'success-num'; el.textContent = n; numsEl.appendChild(el);
+      });
     } catch(e) {
-      showLogicError(e.message || 'Errore durante il salvataggio. Riprova.');
-      btn.disabled = false;
-      btn.textContent = '✦ Conferma Partecipazione';
+      showError(e.message || 'Errore. Riprova.');
+      btn.disabled = false; btn.textContent = '✦ Conferma Partecipazione';
     }
   });
 
-  // ── Rimuovi invalid on input ─────────────────────────────────────────
   ['nome','cognome','telefono'].forEach(id => {
     document.getElementById(id).addEventListener('input', function() { this.classList.remove('invalid'); });
   });
 
-  // ── Start ────────────────────────────────────────────────────────────
   initNumbers();
 </script>
 </body>
