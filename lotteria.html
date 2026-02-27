@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lotteria Primavera 2025</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRjBEMDgwIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0M5QTg0QyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPCEtLSBCaWdsaWV0dG8gLS0+CiAgPHJlY3QgeD0iMiIgeT0iOCIgd2lkdGg9IjI4IiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0idXJsKCNnKSIvPgogIDwhLS0gVGFjY2hlIGxhdGVyYWxpIC0tPgogIDxjaXJjbGUgY3g9IjIiIGN5PSIxNiIgcj0iMyIgZmlsbD0iIzBFMEUwRSIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMTYiIHI9IjMiIGZpbGw9IiMwRTBFMEUiLz4KICA8IS0tIExpbmVhIHRyYXR0ZWdnaWF0YSBjZW50cmFsZSAtLT4KICA8bGluZSB4MT0iNyIgeTE9IjE2IiB4Mj0iMjUiIHkyPSIxNiIgc3Ryb2tlPSIjMEUwRTBFIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1kYXNoYXJyYXk9IjIsMiIgb3BhY2l0eT0iMC40Ii8+CiAgPCEtLSBTdGVsbGEgLS0+CiAgPHRleHQgeD0iMTYiIHk9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjciIGZpbGw9IiMwRTBFMEUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKYhTwvdGV4dD4KICA8IS0tIE51bWVybyAtLT4KICA8dGV4dCB4PSIxNiIgeT0iMjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iNiIgZmlsbD0iIzBFMEUwRSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIj5MT1RUTzwvdGV4dD4KPC9zdmc+Cg==">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -129,7 +130,7 @@
 <div class="wrapper">
 
   <header>
-    <div class="badge">Lotteria Festa di Primavera 205° Corso Fierezza</div>
+    <div class="badge">Lotteria a Esaurimento 2025</div>
     <h1>Scegli il <span>tuo numero</span><br>fortunato</h1>
     <p class="subtitle">Ogni numero è disponibile una sola volta. Digita quello che vuoi o lascia che la fortuna scelga per te.</p>
     <p class="db-status" id="db-status">⏳ Connessione al database...</p>
@@ -155,10 +156,10 @@
     <div class="card">
       <div class="section-title">Coordinate Bancarie</div>
       <div class="bank-box">
-        <strong>Intestatario</strong><br>Emanuele Napodano<br><br>
+        <strong>Intestatario</strong><br>Associazione Lucky Star ETS<br><br>
         <strong>IBAN</strong><br>IT60 X054 2811 1010 0000 0123 456<br><br>
-        <strong>Banca</strong><br>Unicredit S.p.A.<br><br>
-        <strong>Causale</strong><br>Lotteria Primavera 205 - NOME COGNOME
+        <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br><br>
+        <strong>Causale</strong><br>Lotteria 2025 — [Nome Cognome]
       </div>
     </div>
 
@@ -202,6 +203,12 @@
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
       </div>
       <div class="logic-msg" id="logic-error"></div>
+    </div>
+
+    <!-- Honeypot: invisibile agli umani, i bot lo compilano e vengono bloccati -->
+    <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
+      <label for="hp_website">Non compilare questo campo</label>
+      <input type="text" id="hp_website" name="website" tabindex="-1" autocomplete="off">
     </div>
 
     <button class="submit-btn" id="submit-btn" disabled>⏳ Caricamento...</button>
@@ -416,10 +423,39 @@
     });
   }
 
+  // ── Anti-spam ────────────────────────────────────────────────────────
+  const SPAM_KEY = 'lotteria_submitted';
+  const MAX_SUBMITS_PER_IP = 1; // max iscrizioni per sessione browser
+
+  function checkSpam() {
+    // 1. Honeypot check
+    if (document.getElementById('hp_website').value !== '') {
+      return 'Bot rilevato. Iscrizione bloccata.';
+    }
+    // 2. Cooldown: ha già inviato in questa sessione/giorno?
+    const lastSubmit = localStorage.getItem(SPAM_KEY);
+    if (lastSubmit) {
+      const ore = (Date.now() - parseInt(lastSubmit)) / 1000 / 3600;
+      if (ore < 24) {
+        const rimanenti = Math.ceil(24 - ore);
+        return `Hai già completato un\'iscrizione. Potrai iscriverti di nuovo tra ${rimanenti} ora${rimanenti > 1 ? 'e' : ''}.`;
+      }
+    }
+    return null; // ok, nessuno spam
+  }
+
+  function markSubmitted() {
+    localStorage.setItem(SPAM_KEY, Date.now().toString());
+  }
+
   // ── Submit ───────────────────────────────────────────────────────────
   document.getElementById('submit-btn').addEventListener('click', async () => {
     if (!dbReady) return;
     hideError();
+
+    // Anti-spam check
+    const spamMsg = checkSpam();
+    if (spamMsg) { showError(spamMsg); return; }
 
     let valid = true;
     ['nome','cognome','telefono'].forEach(id => {
@@ -454,6 +490,13 @@
     try {
       // 1. Prenota numeri su Firestore
       await runTransaction(db, async (tx) => {
+        // Rate limit server-side: controlla quante iscrizioni ha questo telefono
+        const telRef = doc(db, 'rate_limit', telefono.replace(/\D/g,''));
+        const telSnap = await tx.get(telRef);
+        if (telSnap.exists() && telSnap.data().count >= 1) {
+          throw new Error('Questo numero di telefono ha già completato un\'iscrizione.');
+        }
+
         for (const num of numeriScelti) {
           const ref = doc(db, 'numeri', String(num));
           const snap = await tx.get(ref);
@@ -467,6 +510,8 @@
           nome, cognome, telefono, pacchetto: currentPackage,
           numeri: numeriScelti, importo, timestamp, ricevutaCaricata: true
         });
+        // Salva rate limit per telefono
+        tx.set(doc(db, 'rate_limit', telefono.replace(/\D/g,'')), { count: 1, timestamp });
       });
 
       // 2. Invia notifica Telegram con ricevuta
@@ -482,6 +527,7 @@
       }
 
       // 3. Successo
+      markSubmitted();
       document.getElementById('form-container').style.display = 'none';
       document.getElementById('success-msg').style.display = 'block';
       document.getElementById('success-name').textContent = `${nome} ${cognome} — Pacchetto ${currentPackage} numero${currentPackage > 1 ? 'i' : ''}`;
