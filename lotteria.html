@@ -336,7 +336,7 @@
     if (changed) renderChips();
   });
 
-  // ── Pacchetto ────────────────────────────────────────────────────────
+// ── Pacchetto ────────────────────────────────────────────────────────
   document.querySelectorAll('.pkg-option').forEach(radio => {
     radio.addEventListener('change', () => {
       currentPackage = parseInt(radio.value);
@@ -345,6 +345,12 @@
       document.getElementById('lucky-btn').disabled = false;
     });
   });
+
+  // FORZA LA SINCRONIZZAZIONE SE IL BROWSER HA AUTOCOMPILATO IL CAMPO
+  const preselectedPkg = document.querySelector('.pkg-option:checked');
+  if (preselectedPkg) {
+    preselectedPkg.dispatchEvent(new Event('change'));
+  }
 
   // ── Input ────────────────────────────────────────────────────────────
   const numInput = document.getElementById('num-input');
