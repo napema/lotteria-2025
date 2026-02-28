@@ -319,9 +319,10 @@
     });
     (function() {
   let a = 0;
+  const el = document.getElementById('footer-name');
   function animateFooter() {
     a = (a + 0.3) % 360;
-    document.getElementById('footer-name').style.setProperty('--fn', a + 'deg');
+    el.style.backgroundImage = `conic-gradient(from ${a}deg, #C9A84C 0%, #F0D080 25%, #fff8e1 50%, #F0D080 75%, #C9A84C 100%)`;
     requestAnimationFrame(animateFooter);
   }
   animateFooter();
