@@ -317,6 +317,15 @@
         btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copia IBAN`;
       }, 2500);
     });
+    (function() {
+  let a = 0;
+  function animateFooter() {
+    a = (a + 0.3) % 360;
+    document.getElementById('footer-name').style.setProperty('--fn', a + 'deg');
+    requestAnimationFrame(animateFooter);
+  }
+  animateFooter();
+})();
   }
 
   function copyCausale() {
@@ -664,8 +673,8 @@
   initNumbers();
 </script>
 
-<footer style="text-align:center; padding: 20px 0 10px; font-size: 11px; color: #333; letter-spacing: 1px;">
-  Made by Emanuele Napodano
+<footer style="text-align:center; padding: 20px 0 10px; font-size: 11px; letter-spacing: 1px;">
+  Made by <span id="footer-name" style="background: conic-gradient(from var(--fn, 0deg), #C9A84C 0%, #F0D080 25%, #fff8e1 50%, #F0D080 75%, #C9A84C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600;">Emanuele Napodano</span>
 </footer>
 </body>
 </html>
