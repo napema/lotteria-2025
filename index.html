@@ -188,17 +188,24 @@
     <div class="card">
       <div class="section-title">Coordinate Bancarie</div>
       <div class="bank-box">
-        <strong>Intestatario</strong><br>Associazione Lucky Star ETS<br><br>
+        <strong>Intestatario</strong><br>Matteo Gianangeli<br><br>
         <strong>IBAN</strong><br>
         <div class="iban-row">
-          <span class="iban-text" id="iban-value">IT52Y36772223000EM001857404</span>
+          <span id="iban-value">IT52Y36772223000EM001857404</span>
           <button class="copy-btn" id="copy-iban-btn" onclick="copyIban()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copia
           </button>
         </div><br>
         <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br><br>
-        <strong>Causale</strong><br>Lotteria 2025 — [Nome Cognome]
+        <strong>Causale</strong><br>
+        <div class="iban-row">
+          <span id="causale-value">Biglietti lotteria — [Nome Cognome] - Numeri Scelti</span>
+          <button class="copy-btn" id="copy-causale-btn" onclick="copyCausale()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copia
+          </button>
+        </div>      
       </div>
     </div>
 
@@ -280,6 +287,30 @@
       }, 2500);
     });
   }
+
+  function copyCausale() {
+    const testo = document.getElementById('causale-value').textContent.trim();
+    const btn = document.getElementById('copy-causale-btn');
+    navigator.clipboard.writeText(testo).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiato!`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copia`;
+      }, 2500);
+    });
+  }
+
+  function aggiornaCausale() {
+    const nome = document.getElementById('nome').value.trim();
+    const cognome = document.getElementById('cognome').value.trim();
+    const nomeCompleto = (nome || '[Nome]') + ' ' + (cognome || '[Cognome]');
+    document.getElementById('causale-value').textContent = `Biglietti lotteria — ${nomeCompleto}`;
+  }
+
+  ['nome', 'cognome'].forEach(id => {
+    document.getElementById(id).addEventListener('input', aggiornaCausale);
+  });
 </script>
 
 <script type="module">
