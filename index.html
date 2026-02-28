@@ -59,15 +59,18 @@
   .upload-filename { font-size: 13px; color: var(--success); margin-top: 8px; font-weight: 500; display: none; }
 
   /* BANK BOX */
-  .bank-box { background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb; }
+  .bank-box { background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb; text-align: center; }
   .bank-box strong { color: var(--gold-light); font-size: 12px; letter-spacing: .5px; }
-  .iban-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bank-field { display: flex; flex-direction: column; align-items: center; text-align: center; margin: 6px 0 10px; gap: 8px; }
+  .bank-field-value { color: #bbb; font-size: 13px; line-height: 1.5; }
+  .bank-divider { width: 100%; height: 1px; background: var(--border); margin: 8px 0; }
+  .causale-hint { font-size: 10px; color: #555; letter-spacing: .3px; margin-left: 6px; font-weight: 400; font-family: 'DM Sans', sans-serif; text-transform: none; }
   .copy-btn {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
     border-radius: 5px; color: var(--gold); cursor: pointer;
     font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
-    letter-spacing: .5px; padding: 4px 10px; transition: all .2s; white-space: nowrap;
+    letter-spacing: .5px; padding: 6px 16px; transition: all .2s; white-space: nowrap;
   }
   .copy-btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); }
   .copy-btn.copied { background: rgba(76,175,121,0.15); border-color: var(--success); color: var(--success); }
@@ -178,21 +181,23 @@
       <div class="section-title">Coordinate Bancarie</div>
       <div class="bank-box">
         <strong>Intestatario</strong><br>Matteo Gianangeli<br><br>
-        <strong>IBAN</strong><br>
-        <div class="iban-row">
-          <span id="iban-value">IT52Y36772223000EM001857404</span>
+        <strong>IBAN</strong>
+        <div class="bank-field">
+          <span class="bank-field-value" id="iban-value">IT52Y36772223000EM001857404</span>
           <button class="copy-btn" id="copy-iban-btn" onclick="copyIban()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copia
+            Copia IBAN
           </button>
-        </div><br>
-        <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br><br>
-        <strong>Causale</strong><br>
-        <div class="iban-row" style="margin-top:2px">
-          <span id="causale-value" style="flex:1; line-height:1.5">Biglietti lotteria — [Nome Cognome] - Numeri Scelti</span>
+        </div>
+        <div class="bank-divider"></div>
+        <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br>
+        <div class="bank-divider"></div>
+        <strong>Causale</strong> <span class="causale-hint">· si aggiorna automaticamente</span>
+        <div class="bank-field">
+          <span class="bank-field-value" id="causale-value">Biglietti lotteria — [Nome Cognome] - Numeri Scelti</span>
           <button class="copy-btn" id="copy-causale-btn" onclick="copyCausale()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copia
+            Copia Causale
           </button>
         </div>
       </div>
