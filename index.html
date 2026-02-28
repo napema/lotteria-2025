@@ -305,7 +305,9 @@
     const nome = document.getElementById('nome').value.trim();
     const cognome = document.getElementById('cognome').value.trim();
     const nomeCompleto = (nome || '[Nome]') + ' ' + (cognome || '[Cognome]');
-    document.getElementById('causale-value').textContent = `Biglietti lotteria — ${nomeCompleto}`;
+    const numeri = window._selected ? [...window._selected].sort((a,b) => a-b) : [];
+    const numeriTesto = numeri.length > 0 ? ' - Numeri: ' + numeri.join(', ') : '';
+    document.getElementById('causale-value').textContent = `Biglietti lotteria — ${nomeCompleto}${numeriTesto}`;
   }
 
   ['nome', 'cognome'].forEach(id => {
