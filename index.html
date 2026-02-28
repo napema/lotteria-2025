@@ -318,11 +318,11 @@
       }, 2500);
     });
     (function() {
-  let a = 0;
+  let pos = 0;
   const el = document.getElementById('footer-name');
   function animateFooter() {
-    a = (a + 0.3) % 360;
-    el.style.backgroundImage = `conic-gradient(from ${a}deg, #C9A84C 0%, #F0D080 25%, #fff8e1 50%, #F0D080 75%, #C9A84C 100%)`;
+    pos = (pos + 0.15) % 100;
+    el.style.backgroundPosition = pos + '% center';
     requestAnimationFrame(animateFooter);
   }
   animateFooter();
@@ -675,7 +675,7 @@
 </script>
 
 <footer style="text-align:center; padding: 20px 0 10px; font-size: 11px; letter-spacing: 1px;">
-  Made by <span id="footer-name" style="background: conic-gradient(from var(--fn, 0deg), #C9A84C 0%, #F0D080 25%, #fff8e1 50%, #F0D080 75%, #C9A84C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600;">Emanuele Napodano</span>
+  Made by <span id="footer-name" style="background: linear-gradient(90deg, #C9A84C, #F0D080, #fff8e1, #F0D080, #C9A84C, #F0D080, #fff8e1, #C9A84C); background-size: 300% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600;">Emanuele Napodano</span>
 </footer>
 </body>
 </html>
