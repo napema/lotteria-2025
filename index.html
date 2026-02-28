@@ -84,7 +84,10 @@
   .copy-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
 
   /* RAYCAST BORDER per causale aggiornata */
-  @keyframes rotateBorder { to { --angle: 360deg; } }
+  @keyframes rotateBorder {
+    0%   { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
   @keyframes goldGlow {
     0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(240,208,128,0.9), 0 0 16px rgba(201,168,76,0.6); }
     50%       { opacity: 0.5; text-shadow: none; }
@@ -94,26 +97,27 @@
     padding: 7px 17px;
     color: var(--gold-light);
     background: rgba(201,168,76,0.08);
+    overflow: hidden;
   }
   .copy-btn.updated::before {
     content: '';
     position: absolute;
-    inset: -1.5px;
-    border-radius: 6px;
-    background: conic-gradient(from var(--angle), transparent 20%, #C9A84C 40%, #F0D080 50%, #C9A84C 60%, transparent 80%);
-    animation: rotateBorder 4s linear infinite
+    top: 50%; left: 50%;
+    width: 200%; height: 500%;
+    background: conic-gradient(transparent 0deg, transparent 100deg, #C9A84C 140deg, #F0D080 180deg, #C9A84C 220deg, transparent 260deg, transparent 360deg);
+    animation: rotateBorder 4s linear infinite;
     z-index: -1;
   }
   .copy-btn.updated::after {
     content: '';
     position: absolute;
-    inset: 0.5px;
-    border-radius: 5px;
+    inset: 1.5px;
+    border-radius: 4px;
     background: #111;
     z-index: -1;
   }
   .copy-btn.updated .glow-star {
-    animation: goldGlow 1.5s ease-in-out infinite;
+    animation: goldGlow 2s ease-in-out infinite;
     color: var(--gold-light);
   }
 
@@ -329,7 +333,9 @@
       btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiato!`;
       setTimeout(() => {
         btn.classList.remove('copied');
-btn.innerHTML = `<span class="glow-star">✦</span> Aggiornata — Copia Causale`;      }, 2500);
+        btn.classList.add('updated');
+        btn.innerHTML = `<span class="glow-star">✦</span> Aggiornata — Copia Causale`;
+      }, 2500);
     });
   }
 </script>
