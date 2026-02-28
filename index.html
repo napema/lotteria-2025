@@ -119,6 +119,7 @@
   @keyframes popIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
   .chip-remove { background: none; border: none; color: #888; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; transition: color .15s; }
   .chip-remove:hover { color: var(--error); }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   /* PROGRESS */
   .progress-wrap { margin-top: 14px; }
@@ -335,7 +336,7 @@
     const btn = document.getElementById('copy-causale-btn');
     if (!btn.classList.contains('copied')) {
       btn.classList.add('updated');
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ✦ Aggiornata — Copia`;
+      btn.innerHTML = `<span style="display:inline-block; animation: spin 1.5s linear infinite; color: var(--gold-light)">✦</span> Aggiornata — Copia`;
       clearTimeout(btn._resetTimer);
       btn._resetTimer = setTimeout(() => {
         btn.classList.remove('updated');
