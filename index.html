@@ -62,7 +62,6 @@
   .bank-box { background: #111; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 5px; padding: 18px 20px; font-size: 13px; line-height: 1.9; color: #bbb; }
   .bank-box strong { color: var(--gold-light); font-size: 12px; letter-spacing: .5px; }
   .iban-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .iban-text { font-family: 'DM Mono', 'Courier New', monospace; font-size: 14px; color: var(--text); letter-spacing: .5px; }
   .copy-btn {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
@@ -72,17 +71,7 @@
   }
   .copy-btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); }
   .copy-btn.copied { background: rgba(76,175,121,0.15); border-color: var(--success); color: var(--success); }
-
-  .copy-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
-    border-radius: 5px; color: var(--gold); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
-    letter-spacing: .5px; padding: 4px 10px; transition: all .2s;
-    text-transform: uppercase; white-space: nowrap;
-  }
-  .copy-btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); }
-  .copy-btn.copied { background: rgba(76,175,121,0.15); border-color: var(--success); color: var(--success); }
+  .copy-btn.updated { background: rgba(201,168,76,0.2); border-color: var(--gold); color: var(--gold-light); }
   .copy-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
 
   /* PACKAGES */
@@ -199,13 +188,13 @@
         </div><br>
         <strong>Banca</strong><br>Unicredit S.p.A. — Filiale di Roma Centro<br><br>
         <strong>Causale</strong><br>
-        <div class="iban-row">
-          <span id="causale-value">Biglietti lotteria — [Nome Cognome] - Numeri Scelti</span>
+        <div class="iban-row" style="margin-top:2px">
+          <span id="causale-value" style="flex:1; line-height:1.5">Biglietti lotteria — [Nome Cognome] - Numeri Scelti</span>
           <button class="copy-btn" id="copy-causale-btn" onclick="copyCausale()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copia
           </button>
-        </div>      
+        </div>
       </div>
     </div>
 
@@ -292,27 +281,15 @@
     const testo = document.getElementById('causale-value').textContent.trim();
     const btn = document.getElementById('copy-causale-btn');
     navigator.clipboard.writeText(testo).then(() => {
+      btn.classList.remove('updated');
       btn.classList.add('copied');
-      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiato!`;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiato!`;
       setTimeout(() => {
         btn.classList.remove('copied');
-        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copia`;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copia`;
       }, 2500);
     });
   }
-
-  function aggiornaCausale() {
-    const nome = document.getElementById('nome').value.trim();
-    const cognome = document.getElementById('cognome').value.trim();
-    const nomeCompleto = (nome || '[Nome]') + ' ' + (cognome || '[Cognome]');
-    const numeri = window._selected ? [...window._selected].sort((a,b) => a-b) : [];
-    const numeriTesto = numeri.length > 0 ? ' - Numeri: ' + numeri.join(', ') : '';
-    document.getElementById('causale-value').textContent = `Biglietti lotteria — ${nomeCompleto}${numeriTesto}`;
-  }
-
-  ['nome', 'cognome'].forEach(id => {
-    document.getElementById(id).addEventListener('input', aggiornaCausale);
-  });
 </script>
 
 <script type="module">
@@ -339,9 +316,30 @@
 
   const disponibili = new Set();
   const selected = new Set();
-  window._selected = selected;
   let currentPackage = 0;
   let dbReady = false;
+
+  // ── Aggiorna causale in tempo reale ──────────────────────────────────
+  function aggiornaCausale() {
+    const nome = document.getElementById('nome').value.trim();
+    const cognome = document.getElementById('cognome').value.trim();
+    const nomeCompleto = (nome || '[Nome]') + ' ' + (cognome || '[Cognome]');
+    const numeri = [...selected].sort((a,b) => a-b);
+    const numeriTesto = numeri.length > 0 ? ' - Numeri: ' + numeri.join(', ') : '';
+    document.getElementById('causale-value').textContent = `Biglietti lotteria — ${nomeCompleto}${numeriTesto}`;
+
+    // Segnala che la causale è aggiornata e pronta da copiare
+    const btn = document.getElementById('copy-causale-btn');
+    if (!btn.classList.contains('copied')) {
+      btn.classList.add('updated');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ✦ Aggiornata — Copia`;
+      clearTimeout(btn._resetTimer);
+      btn._resetTimer = setTimeout(() => {
+        btn.classList.remove('updated');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copia`;
+      }, 3000);
+    }
+  }
 
   const ricevutaInput = document.getElementById('ricevuta');
   const uploadArea = document.getElementById('upload-area');
@@ -494,7 +492,7 @@
     document.getElementById('progress-fill').style.width = pct + '%';
     document.getElementById('progress-pct').textContent = pct + '%';
     document.getElementById('selected-count').textContent = `${selected.size} / ${currentPackage || '?'}`;
-    if (typeof aggiornaCausale === 'function') aggiornaCausale();
+    aggiornaCausale();
   }
 
   function showError(msg) { const el = document.getElementById('logic-error'); el.innerHTML = '⚠️ ' + msg; el.classList.add('visible'); }
@@ -601,8 +599,12 @@
     }
   });
 
+  // Listeners nel modulo — nessun errore di inizializzazione
   ['nome','cognome','telefono'].forEach(id => {
     document.getElementById(id).addEventListener('input', function() { this.classList.remove('invalid'); });
+  });
+  ['nome','cognome'].forEach(id => {
+    document.getElementById(id).addEventListener('input', aggiornaCausale);
   });
 
   initNumbers();
