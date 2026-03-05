@@ -756,26 +756,11 @@
     });
   }
 
-  const SPAM_KEY = 'lotteria_submitted';
-  function checkSpam() {
-    if (document.getElementById('hp_website').value !== '') return 'Bot rilevato. Iscrizione bloccata.';
-    const lastSubmit = localStorage.getItem(SPAM_KEY);
-    if (lastSubmit) {
-      const ore = (Date.now() - parseInt(lastSubmit)) / 1000 / 3600;
-      if (ore < 24) {
-        const rimanenti = Math.ceil(24 - ore);
-        return `Hai già completato un'iscrizione. Potrai iscriverti di nuovo tra ${rimanenti} ora${rimanenti > 1 ? 'e' : ''}.`;
-      }
-    }
-    return null;
-  }
-  function markSubmitted() { localStorage.setItem(SPAM_KEY, Date.now().toString()); }
-
   document.getElementById('submit-btn').addEventListener('click', async () => {
     if (!dbReady) return;
     hideError();
-    const spamMsg = checkSpam();
-    if (spamMsg) { showError(spamMsg); return; }
+
+    
 
     let valid = true;
     ['nome','cognome','telefono'].forEach(id => {
@@ -813,9 +798,9 @@
 
       btn.textContent = '⏳ Prenotazione numeri...';
       await runTransaction(db, async (tx) => {
-        const telRef = doc(db, 'rate_limit', telefono.replace(/\D/g,''));
-        const telSnap = await tx.get(telRef);
-        if (telSnap.exists() && telSnap.data().count >= 1) throw new Error('Questo numero di telefono ha già completato un\'iscrizione.');
+
+
+        
         for (const num of numeriScelti) {
           const ref = doc(db, 'numeri', String(num));
           const snap = await tx.get(ref);
@@ -825,13 +810,11 @@
           tx.update(doc(db, 'numeri', String(num)), { disponibile: false, prenotatoDa: `${nome} ${cognome}`, prenotatoIl: timestamp });
         }
         tx.set(doc(collection(db, 'iscrizioni')), { nome, cognome, telefono, pacchetto: currentPackage, numeri: numeriScelti, importo, timestamp, ricevutaUrl: downloadURL });
-        tx.set(doc(db, 'rate_limit', telefono.replace(/\D/g,'')), { count: 1, timestamp });
       });
 
       const caption = `🎟️ <b>NUOVA ISCRIZIONE</b>\n\n👤 ${nome} ${cognome}\n📞 ${telefono}\n📦 Pacchetto: ${currentPackage} numero/i — ${importo}€\n🔢 Numeri: ${numeriScelti.join(', ')}\n\n📄 <a href="${downloadURL}">CLICCA QUI PER VEDERE LA RICEVUTA</a>`;
       tgSendMessage(caption).catch(e => console.error("Errore Telegram ignorato:", e));
 
-      markSubmitted();
       document.getElementById('form-container').style.display = 'none';
       document.querySelector('header').classList.add('success-active');
       document.getElementById('success-msg').style.display = 'block';
