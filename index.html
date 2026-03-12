@@ -131,15 +131,55 @@
   .monte-premi-total span:last-child { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold-light); font-weight: 700; }
 
   /* PACKAGES */
-  .packages { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-  @media(max-width:500px){ .packages { grid-template-columns: 1fr; } }
+  .packages { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  @media(max-width:600px){ .packages { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:360px){ .packages { grid-template-columns: 1fr; } }
   .pkg-option { display: none; }
-  .pkg-label { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; padding: 18px 10px; text-align: center; transition: all .2s; }
+  .pkg-label { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; padding: 18px 10px; text-align: center; transition: all .2s; position: relative; }
   .pkg-label:hover { border-color: var(--gold); }
   .pkg-option:checked + .pkg-label { border-color: var(--gold); background: rgba(201,168,76,0.08); }
   .pkg-nums { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
   .pkg-desc { font-size: 12px; color: var(--muted); }
   .pkg-price { font-size: 14px; color: var(--gold-light); font-weight: 500; }
+
+  /* HOT PACKAGE */
+  @keyframes fireFlicker {
+    0%,100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+    25%      { transform: scaleY(1.15) scaleX(0.92); opacity: .9; }
+    50%      { transform: scaleY(0.95) scaleX(1.05); opacity: 1; }
+    75%      { transform: scaleY(1.1) scaleX(0.95); opacity: .85; }
+  }
+  @keyframes hotGlow {
+    0%,100% { box-shadow: 0 0 0 0 transparent, 0 0 12px rgba(255,80,0,0.15); border-color: #ff5500; }
+    50%      { box-shadow: 0 0 0 3px rgba(255,85,0,0.12), 0 0 22px rgba(255,80,0,0.28); border-color: #ff7733; }
+  }
+  @keyframes hotTagPulse {
+    0%,100% { background: #E03000; box-shadow: 0 2px 8px rgba(224,48,0,0.5); }
+    50%      { background: #FF4500; box-shadow: 0 2px 14px rgba(255,69,0,0.7); }
+  }
+  .pkg-hot .pkg-label {
+    border-color: #ff5500;
+    animation: hotGlow 2s ease-in-out infinite;
+    background: rgba(255,85,0,0.04);
+  }
+  .pkg-hot .pkg-option:checked + .pkg-label {
+    background: rgba(255,85,0,0.1);
+    border-color: #ff7733;
+  }
+  .pkg-hot .pkg-nums { color: #FF6622; }
+  .pkg-hot .pkg-price { color: #FF9966; }
+  .hot-tag {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: #E03000; color: #fff; font-size: 9px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px;
+    border-radius: 3px; white-space: nowrap;
+    animation: hotTagPulse 1.8s ease-in-out infinite;
+  }
+  .hot-fire {
+    display: inline-block;
+    animation: fireFlicker 0.6s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
 
   /* STATS */
   .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
@@ -233,7 +273,7 @@
         <li class="premio-item">
           <span class="premio-rank top3">1</span>
           <span class="premio-emoji">🥇</span>
-          <span class="premio-name">Castorino su misura <span class="brand">· Sartoria Militare Manca Pietro</span></span>
+          <span class="premio-name">Castorino su misura</span>
           <span class="premio-price">600 €</span>
         </li>
         <li class="premio-item">
@@ -378,7 +418,7 @@
         <li class="premio-item">
           <span class="premio-rank">38–40</span>
           <span class="premio-emoji">🪢</span>
-          <span class="premio-name">Corda per saltare <span class="brand">· GLADIUS, 3 pezzi</span></span>
+          <span class="premio-name">Corda per saltare <span class="brand">· 3 pezzi</span></span>
           <span class="premio-price">30 €</span>
         </li>
       </ul>
@@ -438,6 +478,7 @@
         <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg1" value="1"><label class="pkg-label" for="pkg1"><span class="pkg-nums">1</span><span class="pkg-desc">numero</span><span class="pkg-price">5 €</span></label></div>
         <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg3" value="3"><label class="pkg-label" for="pkg3"><span class="pkg-nums">3</span><span class="pkg-desc">numeri</span><span class="pkg-price">10 €</span></label></div>
         <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg5" value="5"><label class="pkg-label" for="pkg5"><span class="pkg-nums">5</span><span class="pkg-desc">numeri</span><span class="pkg-price">15 €</span></label></div>
+        <div class="pkg-hot"><input type="radio" class="pkg-option" name="pacchetto" id="pkg10" value="10"><label class="pkg-label" for="pkg10"><span class="hot-tag"><span class="hot-fire">🔥</span> Più venduto</span><span class="pkg-nums">10</span><span class="pkg-desc">numeri</span><span class="pkg-price">20 €</span></label></div>
       </div>
     </div>
 
@@ -756,11 +797,26 @@
     });
   }
 
+  const SPAM_KEY = 'lotteria_submitted';
+  function checkSpam() {
+    if (document.getElementById('hp_website').value !== '') return 'Bot rilevato. Iscrizione bloccata.';
+    const lastSubmit = localStorage.getItem(SPAM_KEY);
+    if (lastSubmit) {
+      const ore = (Date.now() - parseInt(lastSubmit)) / 1000 / 3600;
+      if (ore < 24) {
+        const rimanenti = Math.ceil(24 - ore);
+        return `Hai già completato un'iscrizione. Potrai iscriverti di nuovo tra ${rimanenti} ora${rimanenti > 1 ? 'e' : ''}.`;
+      }
+    }
+    return null;
+  }
+  function markSubmitted() { localStorage.setItem(SPAM_KEY, Date.now().toString()); }
+
   document.getElementById('submit-btn').addEventListener('click', async () => {
     if (!dbReady) return;
     hideError();
-
-    
+    const spamMsg = checkSpam();
+    if (spamMsg) { showError(spamMsg); return; }
 
     let valid = true;
     ['nome','cognome','telefono'].forEach(id => {
@@ -785,7 +841,7 @@
     const telefono = document.getElementById('telefono').value.trim();
     const numeriScelti = [...selected].sort((a,b) => a-b);
     const timestamp = new Date().toISOString();
-    const importo = currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15;
+    const importo = currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : currentPackage === 5 ? 15 : 20;
 
     try {
       btn.textContent = '⏳ Caricamento ricevuta...';
@@ -798,9 +854,9 @@
 
       btn.textContent = '⏳ Prenotazione numeri...';
       await runTransaction(db, async (tx) => {
-
-
-        
+        const telRef = doc(db, 'rate_limit', telefono.replace(/\D/g,''));
+        const telSnap = await tx.get(telRef);
+        if (telSnap.exists() && telSnap.data().count >= 1) throw new Error('Questo numero di telefono ha già completato un\'iscrizione.');
         for (const num of numeriScelti) {
           const ref = doc(db, 'numeri', String(num));
           const snap = await tx.get(ref);
@@ -810,11 +866,13 @@
           tx.update(doc(db, 'numeri', String(num)), { disponibile: false, prenotatoDa: `${nome} ${cognome}`, prenotatoIl: timestamp });
         }
         tx.set(doc(collection(db, 'iscrizioni')), { nome, cognome, telefono, pacchetto: currentPackage, numeri: numeriScelti, importo, timestamp, ricevutaUrl: downloadURL });
+        tx.set(doc(db, 'rate_limit', telefono.replace(/\D/g,'')), { count: 1, timestamp });
       });
 
       const caption = `🎟️ <b>NUOVA ISCRIZIONE</b>\n\n👤 ${nome} ${cognome}\n📞 ${telefono}\n📦 Pacchetto: ${currentPackage} numero/i — ${importo}€\n🔢 Numeri: ${numeriScelti.join(', ')}\n\n📄 <a href="${downloadURL}">CLICCA QUI PER VEDERE LA RICEVUTA</a>`;
       tgSendMessage(caption).catch(e => console.error("Errore Telegram ignorato:", e));
 
+      markSubmitted();
       document.getElementById('form-container').style.display = 'none';
       document.querySelector('header').classList.add('success-active');
       document.getElementById('success-msg').style.display = 'block';
@@ -841,7 +899,6 @@
 
   initNumbers();
 </script>
-
 
 </body>
 </html>
