@@ -180,6 +180,86 @@
     transform-origin: bottom center;
   }
 
+  /* PACCHETTO PREMIUM */
+  @keyframes premiumPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(240,208,128,0), 0 4px 24px rgba(201,168,76,0.18); }
+    50%      { box-shadow: 0 0 0 5px rgba(240,208,128,0.07), 0 4px 32px rgba(201,168,76,0.32); }
+  }
+  @keyframes shimmerPkg {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes fireFlicker {
+    0%,100% { transform: scaleY(1) scaleX(1); }
+    25%      { transform: scaleY(1.2) scaleX(0.9); }
+    50%      { transform: scaleY(0.95) scaleX(1.05); }
+    75%      { transform: scaleY(1.12) scaleX(0.93); }
+  }
+  @keyframes hotTagPulse {
+    0%,100% { background: #E03000; box-shadow: 0 2px 8px rgba(224,48,0,0.5); }
+    50%      { background: #FF4500; box-shadow: 0 2px 14px rgba(255,69,0,0.7); }
+  }
+  .pkg-premium-wrap { margin-top: 16px; }
+  .pkg-premium-option { display: none; }
+  .pkg-premium-label {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; width: 100%; cursor: pointer;
+    background: linear-gradient(135deg, #1a1500 0%, #1e1800 40%, #161200 100%);
+    border: 1.5px solid var(--gold);
+    border-radius: 10px; padding: 20px 24px;
+    transition: all .25s; position: relative; overflow: hidden;
+    animation: premiumPulse 3s ease-in-out infinite;
+  }
+  .pkg-premium-label::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(240,208,128,0.07) 50%, transparent 65%);
+    background-size: 200% 100%;
+    animation: shimmerPkg 3.5s linear infinite;
+    pointer-events: none;
+  }
+  .pkg-premium-label:hover {
+    border-color: var(--gold-light);
+    background: linear-gradient(135deg, #201900 0%, #231c00 40%, #1a1400 100%);
+  }
+  .pkg-premium-option:checked + .pkg-premium-label {
+    border-color: var(--gold-light);
+    background: linear-gradient(135deg, #2a2000 0%, #2e2400 40%, #221900 100%);
+    box-shadow: 0 0 0 3px rgba(240,208,128,0.12), 0 4px 32px rgba(201,168,76,0.3);
+  }
+  .pkg-premium-left { display: flex; align-items: center; gap: 16px; }
+  .pkg-premium-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+  .pkg-premium-text { display: flex; flex-direction: column; gap: 2px; }
+  .pkg-premium-title {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700;
+    color: var(--gold-light); letter-spacing: .3px;
+  }
+  .pkg-premium-sub { font-size: 12px; color: var(--muted); }
+  .pkg-premium-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .pkg-premium-price {
+    font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700;
+    color: var(--gold-light); line-height: 1;
+  }
+  .pkg-premium-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    background: linear-gradient(90deg, #C9A84C, #F0D080, #C9A84C);
+    background-size: 200% auto;
+    animation: shimmerPkg 2s linear infinite;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hot-tag {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: #E03000; color: #fff; font-size: 9px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px;
+    border-radius: 3px; white-space: nowrap;
+    animation: hotTagPulse 1.8s ease-in-out infinite;
+  }
+  .hot-fire { display: inline-block; animation: fireFlicker 0.6s ease-in-out infinite; transform-origin: bottom center; }
+  .pkg-hot .pkg-label { border-color: #ff5500; background: rgba(255,85,0,0.04); position: relative; }
+  .pkg-hot .pkg-nums { color: #FF6622; }
+  .pkg-hot .pkg-price { color: #FF9966; }
+
   /* STATS */
   .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
   .stat-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
@@ -473,10 +553,21 @@
 
     <div class="card">
       <div class="section-title">Scegli il Pacchetto</div>
-      <div class="packages">
-        <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg1" value="1"><label class="pkg-label" for="pkg1"><span class="pkg-nums">1</span><span class="pkg-desc">numero</span><span class="pkg-price">5 €</span></label></div>
-        <div><input type="radio" class="pkg-option" name="pacchetto" id="pkg3" value="3"><label class="pkg-label" for="pkg3"><span class="pkg-nums">3</span><span class="pkg-desc">numeri</span><span class="pkg-price">10 €</span></label></div>
-        <div class="pkg-hot"><input type="radio" class="pkg-option" name="pacchetto" id="pkg5" value="5"><label class="pkg-label" for="pkg5"><span class="hot-tag"><span class="hot-fire">🔥</span> Più venduto</span><span class="pkg-nums">5</span><span class="pkg-desc">numeri</span><span class="pkg-price">15 €</span></label></div>
+      <div class="pkg-premium-wrap">
+        <input type="radio" class="pkg-premium-option" name="pacchetto" id="pkg10" value="10" checked>
+        <label class="pkg-premium-label" for="pkg10">
+          <div class="pkg-premium-left">
+            <span class="pkg-premium-icon">🎟️</span>
+            <div class="pkg-premium-text">
+              <span class="pkg-premium-title">Pacchetto Maxxi — 10 numeri</span>
+              <span class="pkg-premium-sub">Il massimo per vincere. Dieci possibilità, un solo pagamento.</span>
+            </div>
+          </div>
+          <div class="pkg-premium-right">
+            <span class="pkg-premium-price">25 €</span>
+            <span class="pkg-premium-badge">✦ Best Value</span>
+          </div>
+        </label>
       </div>
     </div>
 
@@ -839,7 +930,7 @@
     const telefono = document.getElementById('telefono').value.trim();
     const numeriScelti = [...selected].sort((a,b) => a-b);
     const timestamp = new Date().toISOString();
-    const importo = currentPackage === 1 ? 5 : currentPackage === 3 ? 10 : 15;
+    const importo = 25;
 
     try {
       btn.textContent = '⏳ Caricamento ricevuta...';
