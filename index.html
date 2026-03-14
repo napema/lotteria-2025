@@ -693,7 +693,7 @@
 
   const disponibili = new Set();
   const selected = new Set();
-  let currentPackage = 0;
+  let currentPackage = 10;
   let dbReady = false;
 
   function aggiornaCausale() {
@@ -756,6 +756,9 @@
       dbReady = true;
       document.getElementById('submit-btn').disabled = false;
       document.getElementById('submit-btn').textContent = '✦ Conferma Partecipazione';
+      document.getElementById('lucky-btn').disabled = false;
+      document.getElementById('selected-count').textContent = '0 / 10';
+      document.getElementById('input-hint').textContent = 'Digita un numero da 1 a 5000';
       const testDoc = await getDoc(doc(db, 'numeri', '1'));
       if (!testDoc.exists()) {
         for (let s = 1; s <= MAX; s += 499) {
