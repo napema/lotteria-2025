@@ -224,8 +224,14 @@
   }
   .pkg-premium-option:checked + .pkg-premium-label {
     border-color: var(--gold-light);
+    border-width: 2px;
     background: linear-gradient(135deg, #2a2000 0%, #2e2400 40%, #221900 100%);
-    box-shadow: 0 0 0 3px rgba(240,208,128,0.12), 0 4px 32px rgba(201,168,76,0.3);
+    box-shadow: 0 0 0 4px rgba(240,208,128,0.15), 0 0 40px rgba(201,168,76,0.45), inset 0 0 20px rgba(201,168,76,0.04);
+    animation: premiumSelected 1.8s ease-in-out infinite;
+  }
+  @keyframes premiumSelected {
+    0%,100% { box-shadow: 0 0 0 4px rgba(240,208,128,0.12), 0 0 32px rgba(201,168,76,0.35); }
+    50%      { box-shadow: 0 0 0 6px rgba(240,208,128,0.2), 0 0 52px rgba(201,168,76,0.55); }
   }
   .pkg-premium-left { display: flex; align-items: center; gap: 16px; }
   .pkg-premium-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
@@ -321,6 +327,41 @@
   .db-status.ok { color: var(--success); }
   .db-status.err { color: var(--error); }
 
+
+  /* CAUSALE SPEECH BUBBLE */
+  .causale-speech {
+    position: relative;
+    margin-top: 14px;
+    background: #161616;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 12px;
+    padding: 13px 15px 12px;
+    transform: rotate(-1.2deg);
+    transform-origin: left center;
+  }
+  .causale-speech::before {
+    content: '';
+    position: absolute;
+    top: -9px; left: 28px;
+    width: 16px; height: 16px;
+    background: #161616;
+    border-left: 1px solid rgba(201,168,76,0.25);
+    border-top: 1px solid rgba(201,168,76,0.25);
+    transform: rotate(45deg) skew(-4deg,-4deg);
+    border-radius: 2px 0 0 0;
+  }
+  .bubble-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .bubble-body { font-size: 12px; color: #999; line-height: 1.65; }
+  .bubble-body strong { color: var(--gold-light); }
+  .bubble-example {
+    margin-top: 8px; padding: 6px 10px;
+    background: rgba(201,168,76,0.05); border-left: 2px solid rgba(201,168,76,0.4);
+    border-radius: 0 4px 4px 0; font-size: 11px; color: #777; font-style: italic;
+  }
   @keyframes shimmer {
     0%   { background-position: 0% center; }
     100% { background-position: 200% center; }
@@ -537,6 +578,11 @@
             Copia Causale
           </button>
         </div>
+        <div class="causale-speech">
+          <div class="bubble-title">💬 Se non riesci a incollare la causale</div>
+          <div class="bubble-body">Non serve la formattazione esatta. Basta scrivere <strong>nome, cognome</strong> e <strong>i numeri scelti</strong> — il sistema ti riconosce lo stesso.</div>
+          <div class="bubble-example">Es: "Mario Rossi 42 371 988"</div>
+        </div>
       </div>
     </div>
 
@@ -559,7 +605,7 @@
           <div class="pkg-premium-left">
             <span class="pkg-premium-icon">🎟️</span>
             <div class="pkg-premium-text">
-              <span class="pkg-premium-title">Pacchetto Maxxi — 10 numeri</span>
+              <span class="pkg-premium-title">Pacchetto Maxi — 10 numeri</span>
               <span class="pkg-premium-sub">Il massimo per vincere. Dieci possibilità, un solo pagamento.</span>
             </div>
           </div>
@@ -991,6 +1037,5 @@
 
   initNumbers();
 </script>
-
 </body>
 </html>
